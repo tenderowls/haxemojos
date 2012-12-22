@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -26,6 +27,19 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-metadata</artifactId>
+                <version>1.5.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-metadata</goal>
+                            <goal>generate-test-metadata</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
@@ -77,6 +91,11 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>13.0.1</version>
+        </dependency>
         <dependency>
             <groupId>com.yelbota.plugins</groupId>
             <artifactId>native-dependency-maven-plugin-base</artifactId>

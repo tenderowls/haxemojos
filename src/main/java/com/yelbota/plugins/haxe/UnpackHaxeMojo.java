@@ -27,7 +27,6 @@ import java.io.File;
 
 /**
  * @goal unpack
- * @threadSafe
  */
 public class UnpackHaxeMojo extends DependencyHaxeMojo {
 
@@ -43,40 +42,59 @@ public class UnpackHaxeMojo extends DependencyHaxeMojo {
     protected Artifact haxeArtifact;
 
     /**
-     * Final unpack directory
+     * Resolved artifact with haxe package.
      */
-    protected File unpackDirectory;
+    private Artifact nekoArtifact;
+
+    /**
+     * Haxe unpack directory
+     */
+    protected File haxeUnpackDirectory;
+
+    /**
+     * Neko unpack directory
+     */
+    protected File nekoUnpackDirectory;
 
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() throws MojoExecutionException, MojoFailureException
+    {
 
-        if (!pluginHome.exists()) {
-            if (!pluginHome.mkdirs()) {
+        if (!pluginHome.exists())
+        {
+            if (!pluginHome.mkdirs())
+            {
                 new MojoFailureException("Can't create unpack directory: " + pluginHome.getAbsolutePath());
             }
         }
 
         haxeArtifact = getHaxeArtifact();
-        unpackDirectory = new File(pluginHome, haxeArtifact.getArtifactId() + "-" + haxeArtifact.getVersion());
+        nekoArtifact = getNekoArtifact();
 
-        if (unpackDirectory.exists()) {
-            getLog().debug("haXe already unpacked");
-        }
-        else {
+        haxeUnpackDirectory = unpackArtifact(haxeArtifact);
+        nekoUnpackDirectory = unpackArtifact(nekoArtifact);
+    }
 
-            File unpackDir = new File(outputDirectory, "tmpUnpack");
+    private File unpackArtifact(Artifact artifact) throws MojoFailureException
+    {
+        File unpackDirectory = new File(pluginHome, artifact.getArtifactId() + "-" + artifact.getVersion());
+        getLog().debug(artifact + " unpack directory = " + unpackDirectory.getAbsolutePath());
 
-            getLog().debug("Unpack directory = " + unpackDirectory.getAbsolutePath());
+        if (!unpackDirectory.exists())
+        {
+            File tmpDir = new File(outputDirectory, "tmpUnpack");
 
             UnpackHelper unpackHelper = new UnpackHelper() {
 
                 @Override
-                protected void logAlreadyUnpacked() {
+                protected void logAlreadyUnpacked()
+                {
                 }
 
                 @Override
-                protected void logUnpacking() {
+                protected void logUnpacking()
+                {
                     getLog().info("Unpacking...");
                 }
             };
@@ -84,13 +102,17 @@ public class UnpackHaxeMojo extends DependencyHaxeMojo {
             ConsoleLoggerManager plexusLoggerManager = new ConsoleLoggerManager();
             Logger plexusLogger = plexusLoggerManager.getLoggerForComponent(ROLE);
             DefaultUnpackMethods unpackMethods = new DefaultUnpackMethods(plexusLogger);
-            unpackHelper.unpack(unpackDir, haxeArtifact, unpackMethods, getLog());
+            unpackHelper.unpack(tmpDir, artifact, unpackMethods, getLog());
 
-            for (String firstFileName: unpackDir.list()) {
-                File firstFile = new File(unpackDir, firstFileName);
+            for (String firstFileName : tmpDir.list())
+            {
+                File firstFile = new File(tmpDir, firstFileName);
                 firstFile.renameTo(unpackDirectory);
                 break;
             }
         }
+        else getLog().debug(artifact + " already unpacked");
+
+        return unpackDirectory;
     }
 }

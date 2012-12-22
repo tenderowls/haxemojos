@@ -30,7 +30,15 @@ public class DependencyHaxeMojo extends AbstractHaxeMojo {
     public static final String TGZ = "tgz";
 
     /**
+     * NekoVM version
+     *
+     * @parameter property="nekoVersion"
+     */
+    private String nekoVersion;
+
+    /**
      * Haxe version
+     *
      * @parameter property="haxeVersion"
      */
     private String haxeVersion;
@@ -39,12 +47,12 @@ public class DependencyHaxeMojo extends AbstractHaxeMojo {
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         getHaxeArtifact();
+        getNekoArtifact();
     }
 
     public Artifact getHaxeArtifact() throws MojoFailureException
     {
-
-        DependencyHelper dependencyHelper = new DependencyHelper() {
+        DependencyHelper dependencyHelper = new HaxeDependencyHelper() {
 
             @Override
             protected String getDefaultArtifactId() throws MojoFailureException
@@ -61,29 +69,7 @@ public class DependencyHaxeMojo extends AbstractHaxeMojo {
             @Override
             protected String getDefaultVersion() throws MojoFailureException
             {
-                getLog().debug("haxeVersion = " + haxeVersion);
                 return haxeVersion;
-            }
-
-            @Override
-            protected String getDefaultPackaging() throws MojoFailureException
-            {
-                getLog().debug(getSDKArtifactPackaging(getDefaultClassifier()));
-                return getSDKArtifactPackaging(getDefaultClassifier());
-            }
-
-            @Override
-            protected String getDefaultClassifier() throws MojoFailureException
-            {
-                String result = super.getDefaultClassifier();
-
-                if (result.equals(OS_CLASSIFIER_LINUX))
-                {
-                    String arch = System.getProperty("os.arch");
-                    return result + (arch.indexOf("64") > -1 ? "64" : "32");
-                }
-
-                return result;
             }
         };
 
@@ -94,26 +80,74 @@ public class DependencyHaxeMojo extends AbstractHaxeMojo {
                 remoteRepositories
         );
 
-        getLog().debug("No plugin dependency defined.");
+        return artifact;
+    }
 
-        if (artifact == null && haxeVersion == null)
-        {
-            throw new MojoFailureException("haxeVersion or plugin dependency must be defined");
-        }
+    public Artifact getNekoArtifact() throws MojoFailureException
+    {
+
+        DependencyHelper dependencyHelper = new HaxeDependencyHelper() {
+
+            @Override
+            protected String getDefaultArtifactId() throws MojoFailureException
+            {
+                return "nekovm";
+            }
+
+            @Override
+            protected String getDefaultGroupId() throws MojoFailureException
+            {
+                return "org.nekovm";
+            }
+
+            @Override
+            protected String getDefaultVersion() throws MojoFailureException
+            {
+                return nekoVersion;
+            }
+        };
+
+        Artifact artifact = dependencyHelper.resolve(
+                pluginArtifacts,
+                repositorySystem,
+                localRepository,
+                remoteRepositories
+        );
 
         return artifact;
     }
 
+    private static abstract class HaxeDependencyHelper extends DependencyHelper {
 
-    public String getSDKArtifactPackaging(String classifier)
-    {
-        if (classifier.equals(DependencyHelper.OS_CLASSIFIER_WINDOWS))
+        @Override
+        protected String getDefaultPackaging() throws MojoFailureException
         {
-            return ZIP;
-        } else
-        {
+            return getSDKArtifactPackaging(getDefaultClassifier());
+        }
 
-            return TGZ;
+        @Override
+        protected String getDefaultClassifier() throws MojoFailureException
+        {
+            String result = super.getDefaultClassifier();
+
+            if (result.equals(OS_CLASSIFIER_LINUX))
+            {
+                String arch = System.getProperty("os.arch");
+                return result + (arch.indexOf("64") > -1 ? "64" : "32");
+            }
+
+            return result;
+        }
+
+        public String getSDKArtifactPackaging(String classifier)
+        {
+            if (classifier.equals(DependencyHelper.OS_CLASSIFIER_WINDOWS))
+            {
+                return ZIP;
+            } else
+            {
+                return TGZ;
+            }
         }
     }
 }

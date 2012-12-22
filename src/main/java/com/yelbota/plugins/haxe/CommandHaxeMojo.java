@@ -15,8 +15,10 @@
  */
 package com.yelbota.plugins.haxe;
 
+import com.google.common.base.Joiner;
 import com.yelbota.plugins.haxe.utils.CleanStream;
-import com.yelbota.plugins.nd.DependencyHelper;
+import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
@@ -24,40 +26,116 @@ import org.codehaus.plexus.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * @goal command
  * @phase package
- * @threadSafe
  */
 public class CommandHaxeMojo extends UnpackHaxeMojo {
 
     /**
      * Custom adt arguments
+     *
      * @parameter property="arguments"
      */
     protected String arguments;
+
+    private File haxelibExecutable;
+
+    private File haxelibHome;
+
+    private String[] envp;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         super.execute();
-        prepareArguments();
+        executeArguments();
+    }
 
-        ArrayList<String> finalArgs = new ArrayList<String>();
-        String executableName = "haxe";
+    protected void executeArguments() throws MojoExecutionException, MojoFailureException
+    {
+        this.prepareArguments();
 
-        if (haxeArtifact.getClassifier() == DependencyHelper.OS_CLASSIFIER_WINDOWS)
-                executableName += ".exe";
+        // Setup runtime with environment vars
+        Runtime runtime = setupRuntime();
 
-        File adtFile = FileUtils.resolveFile(unpackDirectory, executableName);
-        finalArgs.add(adtFile.getAbsolutePath());
+        // Setup haxelib
+        resolveHaxelibDependencies(runtime);
 
-        for (String s: StringUtils.split(arguments, " "))
-            finalArgs.add(s);
+        try
+        {
+            // Configure final arguments for haxe compiler
+            File haxeExecutable = new File(haxeUnpackDirectory, "haxe");
+            String[] args = StringUtils.split(arguments, " ");
+            String[] finalArgs = new String[args.length + 1];
+            System.arraycopy(new String[]{haxeExecutable.getAbsolutePath()}, 0, finalArgs, 0, 1);
+            System.arraycopy(args, 0, finalArgs, 1, args.length);
 
-        execute(finalArgs.toArray(new String[]{}));
+            getLog().info(Joiner.on(" ").join(finalArgs));
+            runExecutable(runtime, finalArgs);
+        }
+        catch (ProcessExecutionException e)
+        {
+            throw new MojoFailureException("haXe execution failed", e);
+        }
+    }
+
+    protected Runtime setupRuntime()
+    {
+        haxelibExecutable = new File(haxeUnpackDirectory, "haxelib");
+        haxelibHome = FileUtils.resolveFile(pluginHome, "_haxelib");
+
+        File javaBin = new File(System.getProperty("java.home"), "bin");
+        String path = haxeUnpackDirectory.getAbsolutePath() + ":" +
+                      nekoUnpackDirectory.getAbsolutePath() + ":" +
+                      javaBin.getAbsolutePath();
+
+        getLog().info(path);
+
+        envp = new String[]{
+                "PATH=" + path,
+                "HOME=" + pluginHome.getAbsolutePath()
+        };
+
+        return Runtime.getRuntime();
+    }
+
+    private void resolveHaxelibDependencies(Runtime runtime) throws MojoFailureException
+    {
+        try
+        {
+            runExecutable(runtime, new String[]{
+                    haxelibExecutable.getAbsolutePath(), "setup",
+                    haxelibHome.getAbsolutePath()
+            });
+        }
+        catch (ProcessExecutionException e)
+        {
+            throw new MojoFailureException("Can't setup haxelib");
+        }
+
+        for (Artifact artifact : project.getDependencyArtifacts())
+        {
+            if (artifact.getType().equals(HaxeFileExtensions.HAXELIB) && !artifact.isResolved())
+            {
+                getLog().info("Resolving " + artifact + " haxelib dependency");
+                try
+                {
+                    runExecutable(runtime, new String[]{
+                            haxelibExecutable.getAbsolutePath(), "install",
+                            artifact.getArtifactId(),
+                            artifact.getVersion()
+                    });
+
+                    artifact.setResolved(true);
+                }
+                catch (ProcessExecutionException e)
+                {
+                    throw new MojoFailureException("Could not find artifact " + artifact, e);
+                }
+            }
+        }
     }
 
     protected void prepareArguments() throws MojoFailureException
@@ -65,35 +143,59 @@ public class CommandHaxeMojo extends UnpackHaxeMojo {
         // Override this method for arguments modification.
     }
 
-    public void execute(String[] args) throws MojoFailureException
+    protected void runExecutable(Runtime runtime, String[] args) throws ProcessExecutionException
     {
-        try {
+        try
+        {
+            Process process = runtime.exec(args, envp, outputDirectory);
+            processExecution(process);
+        }
+        catch (IOException e)
+        {
+            throw new ProcessExecutionException(e);
+        }
+    }
 
-            getLog().debug(StringUtils.join(args, " "));
-            Process process = Runtime.getRuntime().exec(args);
+    private void processExecution(Process process) throws ProcessExecutionException
+    {
+        try
+        {
+            CleanStream cleanError = new CleanStream(
+                    process.getErrorStream(),
+                    getLog(),
+                    CleanStream.CleanStreamType.ERROR
+            );
 
-            CleanStream cleanError = new CleanStream(process.getErrorStream(),
-                    getLog(), CleanStream.CleanStreamType.ERROR);
-
-            CleanStream cleanOutput = new CleanStream(process.getInputStream(),
-                    getLog(), CleanStream.CleanStreamType.INFO);
+            CleanStream cleanOutput = new CleanStream(
+                    process.getInputStream(),
+                    getLog(),
+                    CleanStream.CleanStreamType.INFO
+            );
 
             cleanError.start();
             cleanOutput.start();
 
             int code = process.waitFor();
 
-            if (code > 0) {
-                throw new MojoFailureException("haxe fails with return code #" + code );
-            }
+            if (code > 0)
+                    throw new ProcessExecutionException(code);
+        }
+        catch (InterruptedException e)
+        {
+            throw new ProcessExecutionException(e);
+        }
+    }
 
-        } catch (IOException e) {
+    public static class ProcessExecutionException extends Exception {
 
-            throw new MojoFailureException("Cant execute haxe", e);
+        public ProcessExecutionException(Throwable cause)
+        {
+            super(cause);
+        }
 
-        } catch (InterruptedException e) {
-
-            throw new MojoFailureException("Process was interrupted", e);
+        public ProcessExecutionException(int code)
+        {
+            super("Exit code " + code);
         }
     }
 }

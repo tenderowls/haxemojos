@@ -18,12 +18,20 @@ package com.yelbota.plugins.haxe;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 
 import java.io.File;
 import java.util.List;
 
 abstract public class AbstractHaxeMojo extends AbstractMojo {
+
+    /**
+     * The Maven project.
+     * @parameter default-value="null" property="project"
+     * @readonly
+     */
+    protected MavenProject project;
 
     /**
      * @component
