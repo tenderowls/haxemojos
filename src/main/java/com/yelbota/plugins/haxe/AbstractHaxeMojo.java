@@ -18,6 +18,8 @@ package com.yelbota.plugins.haxe;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 
@@ -26,45 +28,22 @@ import java.util.List;
 
 abstract public class AbstractHaxeMojo extends AbstractMojo {
 
-    /**
-     * The Maven project.
-     * @parameter default-value="null" property="project"
-     * @readonly
-     */
+    @Component
     protected MavenProject project;
 
-    /**
-     * @component
-     * @readonly
-     */
+    @Component
     protected RepositorySystem repositorySystem;
 
-    /**
-     * @parameter property="plugin.artifacts"
-     * @readonly
-     * @required
-     */
+    @Component
     public List<Artifact> pluginArtifacts;
 
-    /**
-     * @parameter property="localRepository"
-     * @required
-     * @readonly
-     */
-
+    @Parameter (property="localRepository", required = true, readonly = true)
     protected ArtifactRepository localRepository;
-    /**
-     * @parameter property="project.remoteArtifactRepositories"
-     * @required
-     * @readonly
-     */
+
+    @Parameter (property="project.remoteArtifactRepositories", required = true, readonly = true)
     protected List<ArtifactRepository> remoteRepositories;
 
-    /**
-     * Location of the file.
-     *
-     * @parameter property="project.build.directory"
-     * @required
-     */
+    // TODO WTF
+    @Parameter(property = "project.build.directory", required = true)
     protected File outputDirectory;
 }

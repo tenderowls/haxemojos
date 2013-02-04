@@ -67,11 +67,13 @@ public abstract class AbstractHaxeLifecycleMapping
 
     public abstract String getCompiler();
 
+    @Deprecated
     public List<String> getOptionalMojos( String lifecycle )
     {
         return null;
     }
 
+    @Deprecated
     public Map<String, String> getPhases( String lifecycle )
     {
         Lifecycle lifecycleMapping = getLifecycles().get( lifecycle );
@@ -83,5 +85,4 @@ public abstract class AbstractHaxeLifecycleMapping
 
         return null;
     }
-
 }

@@ -15,7 +15,6 @@
  */
 package com.yelbota.plugins.haxe.tasks;
 
-import com.google.common.base.Joiner;
 import com.yelbota.plugins.haxe.utils.CleanStream;
 import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
 import org.apache.maven.artifact.Artifact;
@@ -79,7 +78,7 @@ public class CommandTask implements HaxeTask {
             System.arraycopy(new String[]{haxeExecutable.getAbsolutePath()}, 0, finalArgs, 0, 1);
             System.arraycopy(args, 0, finalArgs, 1, args.length);
 
-            log.info(Joiner.on(" ").join(finalArgs));
+            log.info(StringUtils.join(finalArgs, " "));
             runExecutable(runtime, finalArgs);
         }
         catch (ProcessExecutionException e)

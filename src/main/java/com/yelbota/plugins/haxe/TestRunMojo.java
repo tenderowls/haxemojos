@@ -18,13 +18,12 @@ package com.yelbota.plugins.haxe;
 import com.yelbota.plugins.haxe.tasks.CommandTask;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 
 import java.io.File;
 
-/**
- * @goal testRun
- * @phase test-run
- */
+@Mojo(name="testRun", defaultPhase = LifecyclePhase.TEST)
 public class TestRunMojo extends UnpackHaxeMojo {
 
     @Override

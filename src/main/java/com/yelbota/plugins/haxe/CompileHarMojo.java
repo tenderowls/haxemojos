@@ -22,23 +22,22 @@ import com.yelbota.plugins.haxe.utils.CompileTarget;
 import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * @goal compileHar
- * @phase compile
- */
+@Mojo(name="compileHar", defaultPhase = LifecyclePhase.COMPILE)
 public class CompileHarMojo extends AbstractCompileMojo {
 
     /**
      * Compile targets for `har`. Ignored in another packaging types.
-     *
-     * @parameter
      */
+    @Parameter(required = true)
     private List<CompileTarget> targets;
 
     @Override

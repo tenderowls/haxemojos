@@ -15,15 +15,21 @@
  */
 package com.yelbota.plugins.haxe;
 
+import org.apache.maven.plugins.annotations.Parameter;
+
 public abstract class AbstractCompileMojo extends UnpackHaxeMojo {
 
+    @Parameter
+
     /**
-     * @parameter
+     *  Main class
      */
     protected String main;
 
+    @Parameter
+
     /**
-     * @parameter
+     * Compile in debug mode
      */
     protected boolean debug;
 }

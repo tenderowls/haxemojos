@@ -19,20 +19,18 @@ import com.yelbota.plugins.haxe.tasks.compile.CompileNekoTask;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.util.List;
 
-/**
- * @goal testCompile
- * @phase test-compile
- */
+@Mojo(name = "testCompile", defaultPhase = LifecyclePhase.TEST_COMPILE)
 public class TestCompile extends AbstractCompileMojo {
 
-    /**
-     * @parameter
-     */
+    @Parameter
     private String testRunner;
 
     @Override

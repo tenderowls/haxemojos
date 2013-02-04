@@ -18,17 +18,17 @@ package com.yelbota.plugins.haxe;
 import com.yelbota.plugins.haxe.tasks.compile.CompileJavaTask;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
-/**
- * @goal compileJava
- * @phase compile
- */
+@Mojo(name="compileJava", defaultPhase = LifecyclePhase.COMPILE)
 public class CompileJavaMojo extends AbstractCompileMojo {
 
     /**
      * hxjava dependency version. also you can add org.haxe.lib:hxjava:version:haxelib dependency manually.
-     * @parameter default-value="2.10.2"
      */
+    @Parameter(defaultValue = "2.10.2")
     private String hxJavaVersion;
 
     @Override

@@ -20,20 +20,18 @@ import com.yelbota.plugins.nd.utils.DefaultUnpackMethods;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 
 import java.io.File;
 
-/**
- * @goal unpack
- */
+@Mojo( name="unpack" )
 public class UnpackHaxeMojo extends DependencyHaxeMojo {
 
-    /**
-     * Plugin home-folder
-     * @parameter expression="${user.home}/.haxe-maven-plugin"
-     */
+    @Parameter(defaultValue = "${user.home}/.haxe-maven-plugin")
     public File pluginHome;
 
     /**

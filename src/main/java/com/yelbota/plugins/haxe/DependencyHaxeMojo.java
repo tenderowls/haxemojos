@@ -19,29 +19,29 @@ import com.yelbota.plugins.nd.DependencyHelper;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
- * @goal dependency
- * @threadSafe
+ * Downloads haxe and neko dependencies
  */
+@Mojo(name = "dependency")
 public class DependencyHaxeMojo extends AbstractHaxeMojo {
-
-    public static final String ZIP = "zip";
-    public static final String TGZ = "tgz";
 
     /**
      * NekoVM version
-     *
-     * @parameter property="nekoVersion"
      */
+    @Parameter(property = "nekoVersion")
     private String nekoVersion;
 
     /**
      * Haxe version
-     *
-     * @parameter property="haxeVersion"
      */
+    @Parameter(property = "haxeVersion")
     private String haxeVersion;
+
+    public static final String ZIP = "zip";
+    public static final String TGZ = "tgz";
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException

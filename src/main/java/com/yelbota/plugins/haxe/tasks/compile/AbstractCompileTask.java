@@ -15,13 +15,13 @@
  */
 package com.yelbota.plugins.haxe.tasks.compile;
 
-import com.google.common.base.Joiner;
 import com.yelbota.plugins.haxe.tasks.CommandTask;
 import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public abstract class AbstractCompileTask extends CommandTask {
     @Override
     protected void prepareArguments() throws MojoFailureException
     {
-        arguments = Joiner.on(" ").join(prepareArgumentsList());
+        arguments = StringUtils.join(prepareArgumentsList().iterator(), " ");
     }
 
     protected List<String> prepareArgumentsList()
