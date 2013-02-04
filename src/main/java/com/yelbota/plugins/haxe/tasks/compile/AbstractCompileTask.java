@@ -13,29 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe;
+package com.yelbota.plugins.haxe.tasks.compile;
 
 import com.google.common.base.Joiner;
+import com.yelbota.plugins.haxe.tasks.CommandTask;
 import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractCompileHaxeMojo extends CommandHaxeMojo {
+public abstract class AbstractCompileTask extends CommandTask {
 
-    /**
-     * @parameter property="main"
-     * @required
-     */
-    public String main;
+    private String main;
 
-    /**
-     * @parameter property="main" default-value="false"
-     * @required
-     */
-    public boolean debug;
+    private boolean debug;
+
+    public AbstractCompileTask(File pluginHome, File haxeUnpackDirectory, File nekoUnpackDirectory, File outputDirectory, Log log, MavenProject project, String main, boolean debug)
+    {
+        super(pluginHome, haxeUnpackDirectory, nekoUnpackDirectory, outputDirectory, log, project);
+        this.main = main;
+        this.debug = debug;
+    }
 
     @Override
     protected void prepareArguments() throws MojoFailureException
@@ -89,7 +92,7 @@ public abstract class AbstractCompileHaxeMojo extends CommandHaxeMojo {
         argumentsList.add(main);
     }
 
-    protected void addSourcePath(List<String> argumentsList, String sourcePath)
+    public void addSourcePath(List<String> argumentsList, String sourcePath)
     {
         argumentsList.add("-cp");
         argumentsList.add(sourcePath);

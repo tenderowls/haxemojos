@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe;
+package com.yelbota.plugins.haxe.tasks;
 
 import com.google.common.base.Joiner;
 import com.yelbota.plugins.haxe.utils.CleanStream;
@@ -21,35 +21,42 @@ import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 
-/**
- * @goal command
- * @phase package
- */
-public class CommandHaxeMojo extends UnpackHaxeMojo {
-
-    /**
-     * Custom adt arguments
-     *
-     * @parameter property="arguments"
-     */
-    protected String arguments;
+public class CommandTask implements HaxeTask {
 
     private File haxelibExecutable;
-
     private File haxelibHome;
-
     private String[] envp;
 
-    @Override
+    protected String arguments;
+
+    protected File pluginHome;
+    protected File haxeUnpackDirectory;
+    protected File nekoUnpackDirectory;
+    protected File outputDirectory;
+
+    protected Log log;
+    protected MavenProject project;
+
+    public CommandTask(File pluginHome, File haxeUnpackDirectory, File nekoUnpackDirectory, File outputDirectory, Log log, MavenProject project)
+    {
+        this.pluginHome = pluginHome;
+        this.haxeUnpackDirectory = haxeUnpackDirectory;
+        this.nekoUnpackDirectory = nekoUnpackDirectory;
+        this.outputDirectory = outputDirectory;
+        this.log = log;
+        this.project = project;
+    }
+
     public void execute() throws MojoExecutionException, MojoFailureException
     {
-        super.execute();
         executeArguments();
     }
 
@@ -72,7 +79,7 @@ public class CommandHaxeMojo extends UnpackHaxeMojo {
             System.arraycopy(new String[]{haxeExecutable.getAbsolutePath()}, 0, finalArgs, 0, 1);
             System.arraycopy(args, 0, finalArgs, 1, args.length);
 
-            getLog().info(Joiner.on(" ").join(finalArgs));
+            log.info(Joiner.on(" ").join(finalArgs));
             runExecutable(runtime, finalArgs);
         }
         catch (ProcessExecutionException e)
@@ -81,7 +88,7 @@ public class CommandHaxeMojo extends UnpackHaxeMojo {
         }
     }
 
-    protected Runtime setupRuntime()
+    public Runtime setupRuntime()
     {
         haxelibExecutable = new File(haxeUnpackDirectory, "haxelib");
         haxelibHome = FileUtils.resolveFile(pluginHome, "_haxelib");
@@ -91,7 +98,7 @@ public class CommandHaxeMojo extends UnpackHaxeMojo {
                       nekoUnpackDirectory.getAbsolutePath() + ":" +
                       javaBin.getAbsolutePath();
 
-        getLog().info(path);
+        log.info(path);
 
         envp = new String[]{
                 "PATH=" + path,
@@ -119,7 +126,7 @@ public class CommandHaxeMojo extends UnpackHaxeMojo {
         {
             if (artifact.getType().equals(HaxeFileExtensions.HAXELIB) && !artifact.isResolved())
             {
-                getLog().info("Resolving " + artifact + " haxelib dependency");
+                log.info("Resolving " + artifact + " haxelib dependency");
                 try
                 {
                     runExecutable(runtime, new String[]{
@@ -143,7 +150,7 @@ public class CommandHaxeMojo extends UnpackHaxeMojo {
         // Override this method for arguments modification.
     }
 
-    protected void runExecutable(Runtime runtime, String[] args) throws ProcessExecutionException
+    public void runExecutable(Runtime runtime, String[] args) throws ProcessExecutionException
     {
         try
         {
@@ -162,13 +169,13 @@ public class CommandHaxeMojo extends UnpackHaxeMojo {
         {
             CleanStream cleanError = new CleanStream(
                     process.getErrorStream(),
-                    getLog(),
+                    log,
                     CleanStream.CleanStreamType.ERROR
             );
 
             CleanStream cleanOutput = new CleanStream(
                     process.getInputStream(),
-                    getLog(),
+                    log,
                     CleanStream.CleanStreamType.INFO
             );
 
@@ -178,12 +185,17 @@ public class CommandHaxeMojo extends UnpackHaxeMojo {
             int code = process.waitFor();
 
             if (code > 0)
-                    throw new ProcessExecutionException(code);
+                throw new ProcessExecutionException(code);
         }
         catch (InterruptedException e)
         {
             throw new ProcessExecutionException(e);
         }
+    }
+
+    public void setArguments(String arguments)
+    {
+        this.arguments = arguments;
     }
 
     public static class ProcessExecutionException extends Exception {

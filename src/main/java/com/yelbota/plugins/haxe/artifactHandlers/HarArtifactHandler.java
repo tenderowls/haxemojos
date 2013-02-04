@@ -13,12 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe.utils;
+package com.yelbota.plugins.haxe.artifactHandlers;
 
-public class HaxeFileExtensions {
+import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
+import org.apache.maven.artifact.handler.ArtifactHandler;
+import org.codehaus.plexus.component.annotations.Component;
 
-    public static final String HAXELIB = "haxelib";
+@Component( role = ArtifactHandler.class, hint = HaxeFileExtensions.HAR )
+public class HarArtifactHandler extends AbstractHaxeArtifactHandler implements ArtifactHandler {
 
-    public static final String JAR = "jar";
-    public static final String HAR = "har";
+    @Override
+    public String getType()
+    {
+        return HaxeFileExtensions.HAR;
+    }
 }

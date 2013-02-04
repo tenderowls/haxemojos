@@ -15,34 +15,28 @@
  */
 package com.yelbota.plugins.haxe;
 
+import com.yelbota.plugins.haxe.tasks.compile.CompileJavaTask;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
-import java.io.File;
-
 /**
- * @goal compile-java
+ * @goal compileJava
  * @phase compile
  */
-public class CompileJavaMojo extends AbstractCompileJavaMojo {
+public class CompileJavaMojo extends AbstractCompileMojo {
+
+    /**
+     * hxjava dependency version. also you can add org.haxe.lib:hxjava:version:haxelib dependency manually.
+     * @parameter default-value="2.10.2"
+     */
+    private String hxJavaVersion;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         super.execute();
 
-        File jar = new File(haxeJavaWorkDirectory, getWorkDirectory() + ".jar");
-
-        if (jar.exists())
-        {
-            String artifactFinalName = project.getBuild().getFinalName() + "." + project.getPackaging();
-            File artifactFile = new File(outputDirectory, artifactFinalName);
-
-            if (artifactFile.exists())
-                artifactFile.delete();
-
-            jar.renameTo(artifactFile);
-            project.getArtifact().setFile(artifactFile);
-        }
+        CompileJavaTask task = new CompileJavaTask(pluginHome, haxeUnpackDirectory, nekoUnpackDirectory, outputDirectory, getLog(), project, main, debug, hxJavaVersion);
+        task.execute();
     }
 }

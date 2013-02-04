@@ -45,8 +45,8 @@ public abstract class AbstractHaxeLifecycleMapping
         phases.put( "process-resources", "org.apache.maven.plugins:maven-resources-plugin:resources" );
         phases.put( "compile", getCompiler() );
         phases.put( "process-test-resources", "org.apache.maven.plugins:maven-resources-plugin:testResources" );
-        phases.put( "test-compile", "com.yelbota.plugins:haxe-maven-plugin:test-compile");
-        phases.put( "test", "com.yelbota.plugins:haxe-maven-plugin:test-run" );
+        phases.put( "test-compile", "com.yelbota.plugins:haxe-maven-plugin:testCompile");
+        phases.put( "test", "com.yelbota.plugins:haxe-maven-plugin:testRun" );
 
         if ( getPackage() != null )
         {

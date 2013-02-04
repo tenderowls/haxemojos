@@ -15,35 +15,31 @@
  */
 package com.yelbota.plugins.haxe;
 
-import com.yelbota.plugins.haxe.utils.CleanStream;
+import com.yelbota.plugins.haxe.tasks.CommandTask;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
- * @goal test-run
+ * @goal testRun
  * @phase test-run
  */
-public class TestRunHaxeMojo extends CommandHaxeMojo {
+public class TestRunMojo extends UnpackHaxeMojo {
 
     @Override
-    protected void executeArguments() throws MojoExecutionException, MojoFailureException
+    public void execute() throws MojoExecutionException, MojoFailureException
     {
-        File testJarFile = new File(outputDirectory, "haxe-java-test/haxe-java-test.jar");
-
-        if (!testJarFile.exists())
-            return;
+        super.execute();
 
         try
         {
-            Runtime runtime = setupRuntime();
-            runExecutable(runtime, new String[]{"java", "-jar", testJarFile.getAbsolutePath()});
+            CommandTask task = new CommandTask(pluginHome, haxeUnpackDirectory, nekoUnpackDirectory, outputDirectory, getLog(),  project);
+            task.runExecutable(task.setupRuntime(), new String[]{ new File(nekoUnpackDirectory, "neko").getAbsolutePath(), project.getBuild().getFinalName() + "-test.n" });
         }
-        catch (CommandHaxeMojo.ProcessExecutionException e)
+        catch (CommandTask.ProcessExecutionException e)
         {
-            new MojoFailureException("Test failed", e);
+            throw new MojoFailureException("Test failed", e);
         }
     }
 }

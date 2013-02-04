@@ -13,12 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe.utils;
+package com.yelbota.plugins.haxe;
 
-public class HaxeFileExtensions {
+public abstract class AbstractCompileMojo extends UnpackHaxeMojo {
 
-    public static final String HAXELIB = "haxelib";
+    /**
+     * @parameter
+     */
+    protected String main;
 
-    public static final String JAR = "jar";
-    public static final String HAR = "har";
+    /**
+     * @parameter
+     */
+    protected boolean debug;
 }

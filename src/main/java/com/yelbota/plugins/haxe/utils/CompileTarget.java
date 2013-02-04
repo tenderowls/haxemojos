@@ -15,10 +15,6 @@
  */
 package com.yelbota.plugins.haxe.utils;
 
-public class HaxeFileExtensions {
-
-    public static final String HAXELIB = "haxelib";
-
-    public static final String JAR = "jar";
-    public static final String HAR = "har";
+public enum CompileTarget {
+    java, neko;
 }

@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe.utils;
+package com.yelbota.plugins.haxe.tasks;
 
-public class HaxeFileExtensions {
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
-    public static final String HAXELIB = "haxelib";
-
-    public static final String JAR = "jar";
-    public static final String HAR = "har";
+public interface HaxeTask {
+    void execute() throws MojoExecutionException, MojoFailureException;
 }

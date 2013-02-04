@@ -13,12 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe.utils;
+package com.yelbota.plugins.haxe.lifecycle;
 
-public class HaxeFileExtensions {
+import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
+import org.apache.maven.lifecycle.mapping.LifecycleMapping;
+import org.codehaus.plexus.component.annotations.Component;
 
-    public static final String HAXELIB = "haxelib";
+@Component( role = LifecycleMapping.class, hint = HaxeFileExtensions.HAR)
+public class HarLifecycleMapping extends AbstractHaxeLifecycleMapping implements LifecycleMapping
+{
+    public String getCompiler()
+    {
+        return "com.yelbota.plugins:haxe-maven-plugin:compileHar";
+    }
 
-    public static final String JAR = "jar";
-    public static final String HAR = "har";
 }
