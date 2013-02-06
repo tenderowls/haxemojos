@@ -17,12 +17,15 @@ package com.yelbota.plugins.haxe;
 
 import com.yelbota.plugins.haxe.components.nativeProgram.NativeProgram;
 import com.yelbota.plugins.haxe.components.nativeProgram.NativeProgramException;
+import com.yelbota.plugins.haxe.utils.OutputNamesHelper;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+
+import java.io.File;
 
 /**
  * Run tests with `neko`.
@@ -40,7 +43,13 @@ public final class TestRunMojo extends AbstractHaxeMojo {
 
         try
         {
-            neko.execute(project.getBuild().getFinalName() + "-test.n");
+            File testFile = new File(outputDirectory, OutputNamesHelper.getTestOutput(project));
+
+            if (testFile.exists())
+            {
+                neko.execute(testFile.getAbsolutePath());
+            }
+            else getLog().info("No tests to run.");
         }
         catch (NativeProgramException e)
         {

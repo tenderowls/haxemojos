@@ -37,12 +37,17 @@ public class TestCompileMojo extends AbstractHaxeMojo {
     private String testRunner;
 
     @Component
-    private HaxeCompiler haxeCompiler;
+    private HaxeCompiler compiler;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         super.execute();
+
+        if (testRunner == null || project.getTestCompileSourceRoots().size() == 0) {
+            getLog().info("No test sources to compile");
+            return;
+        }
 
         String output = OutputNamesHelper.getTestOutput(project);
         EnumMap<CompileTarget, String> targets = new EnumMap<CompileTarget, String>(CompileTarget.class);
@@ -50,7 +55,7 @@ public class TestCompileMojo extends AbstractHaxeMojo {
 
         try
         {
-            haxeCompiler.compile(project, targets, testRunner, true, true);
+            compiler.compile(project, targets, testRunner, true, true);
         }
         catch (Exception e)
         {
