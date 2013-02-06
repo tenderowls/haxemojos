@@ -15,7 +15,7 @@
  */
 package com.yelbota.plugins.haxe.utils;
 
-import org.apache.maven.plugin.logging.Log;
+import org.codehaus.plexus.logging.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,20 +30,20 @@ public class CleanStream extends Thread {
     
     private InputStream is;
     private CleanStreamType type = null;
-    private Log log = null;
+    private Logger log = null;
 
     public CleanStream(InputStream is)
     {
         this.is = is;
     }
 
-    public CleanStream(InputStream is, Log log)
+    public CleanStream(InputStream is, Logger log)
     {
         this.is = is;
         this.log = log;
     }
 
-    public CleanStream(InputStream is, Log log, CleanStreamType type)
+    public CleanStream(InputStream is, Logger log, CleanStreamType type)
     {
         this.is = is;
         this.type = type;

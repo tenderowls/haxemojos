@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe.utils;
+package com.yelbota.plugins.haxe.components.nativeProgram;
 
-public class HaxeFileExtensions {
+public class NativeProgramException extends Exception {
 
-    public static final String HAXELIB = "haxelib";
-    public static final String JAR = "jar";
-    public static final String HAR = "har";
-    public static final String NEKO = "n";
+    public NativeProgramException(String s, Throwable e)
+    {
+        super(s, e);
+    }
 }

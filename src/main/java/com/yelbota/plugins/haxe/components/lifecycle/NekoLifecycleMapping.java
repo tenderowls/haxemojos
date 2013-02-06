@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe.artifactHandlers;
+package com.yelbota.plugins.haxe.components.lifecycle;
 
 import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
-import org.apache.maven.artifact.handler.ArtifactHandler;
+import org.apache.maven.lifecycle.mapping.LifecycleMapping;
 import org.codehaus.plexus.component.annotations.Component;
 
-@Component( role = ArtifactHandler.class, hint = HaxeFileExtensions.HAXELIB )
-public class HaxelibArtifactHandler extends AbstractHaxeArtifactHandler implements ArtifactHandler {
-
-    @Override
-    public String getType()
+@Component( role = LifecycleMapping.class, hint = HaxeFileExtensions.NEKO)
+public class NekoLifecycleMapping extends AbstractHaxeLifecycleMapping implements LifecycleMapping
+{
+    public String getCompiler()
     {
-        return HaxeFileExtensions.HAXELIB;
+        return "com.yelbota.plugins:haxe-maven-plugin:compileNeko";
     }
+
 }

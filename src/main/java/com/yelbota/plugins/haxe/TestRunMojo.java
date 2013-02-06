@@ -15,16 +15,26 @@
  */
 package com.yelbota.plugins.haxe;
 
-import com.yelbota.plugins.haxe.tasks.CommandTask;
+import com.yelbota.plugins.haxe.components.nativeProgram.NativeProgram;
+import com.yelbota.plugins.haxe.components.nativeProgram.NativeProgramException;
+import com.yelbota.plugins.haxe.utils.OutputNamesHelper;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 
-@Mojo(name="testRun", defaultPhase = LifecyclePhase.TEST)
-public class TestRunMojo extends UnpackHaxeMojo {
+/**
+ * Run tests with `neko`.
+ */
+@Mojo(name = "testRun", defaultPhase = LifecyclePhase.TEST)
+public final class TestRunMojo extends AbstractHaxeMojo {
+
+    @Component(hint = "neko")
+    private NativeProgram neko;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
@@ -33,10 +43,15 @@ public class TestRunMojo extends UnpackHaxeMojo {
 
         try
         {
-            CommandTask task = new CommandTask(pluginHome, haxeUnpackDirectory, nekoUnpackDirectory, outputDirectory, getLog(),  project);
-            task.runExecutable(task.setupRuntime(), new String[]{ new File(nekoUnpackDirectory, "neko").getAbsolutePath(), project.getBuild().getFinalName() + "-test.n" });
+            File testFile = new File(outputDirectory, OutputNamesHelper.getTestOutput(project));
+
+            if (testFile.exists())
+            {
+                neko.execute(testFile.getAbsolutePath());
+            }
+            else getLog().info("No tests to run.");
         }
-        catch (CommandTask.ProcessExecutionException e)
+        catch (NativeProgramException e)
         {
             throw new MojoFailureException("Test failed", e);
         }

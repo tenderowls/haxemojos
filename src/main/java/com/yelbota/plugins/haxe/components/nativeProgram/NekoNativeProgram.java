@@ -13,18 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe.lifecycle;
+package com.yelbota.plugins.haxe.components.nativeProgram;
 
-import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
-import org.apache.maven.lifecycle.mapping.LifecycleMapping;
 import org.codehaus.plexus.component.annotations.Component;
 
-@Component( role = LifecycleMapping.class, hint = HaxeFileExtensions.JAR )
-public class JavaLifecycleMapping extends AbstractHaxeLifecycleMapping implements LifecycleMapping
-{
-    public String getCompiler()
-    {
-        return "com.yelbota.plugins:haxe-maven-plugin:compileJava";
-    }
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
+@Component(role = NativeProgram.class, hint = "neko")
+public final class NekoNativeProgram extends AbstractNativeProgram {
+
+    @Override
+    protected List<String> updateArguments(List<String> arguments)
+    {
+        List<String> list = new ArrayList<String>();
+        File executable = new File(directory, isWindows() ? "neko.exe" : "neko");
+        list.add(executable.getAbsolutePath());
+        list.addAll(arguments);
+
+        return list;
+    }
 }
+

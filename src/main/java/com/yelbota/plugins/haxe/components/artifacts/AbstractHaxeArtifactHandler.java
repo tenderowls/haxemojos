@@ -13,12 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe.utils;
+package com.yelbota.plugins.haxe.components.artifacts;
 
-public class HaxeFileExtensions {
+import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 
-    public static final String HAXELIB = "haxelib";
-    public static final String JAR = "jar";
-    public static final String HAR = "har";
-    public static final String NEKO = "n";
+public class AbstractHaxeArtifactHandler extends DefaultArtifactHandler {
+
+    @Override
+    public String getExtension()
+    {
+        return getType();
+    }
+
+    @Override
+    public String getPackaging()
+    {
+        return getType();  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean isIncludesDependencies()
+    {
+        return false;
+    }
+
+    @Override
+    public String getLanguage()
+    {
+        return "haxe";
+    }
 }

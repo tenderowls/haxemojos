@@ -15,10 +15,13 @@
  */
 package com.yelbota.plugins.haxe.utils;
 
-public class HaxeFileExtensions {
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Set;
 
-    public static final String HAXELIB = "haxelib";
-    public static final String JAR = "jar";
-    public static final String HAR = "har";
-    public static final String NEKO = "n";
+@XmlRootElement(name = "har")
+public class HarMetadata {
+
+    public static final String METADATA_FILE_NAME = "metadata.xml";
+
+    public Set<CompileTarget> target;
 }

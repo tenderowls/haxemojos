@@ -16,33 +16,48 @@
 package com.yelbota.plugins.haxe;
 
 import com.yelbota.plugins.haxe.components.HaxeCompiler;
+import com.yelbota.plugins.haxe.utils.CompileTarget;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 
-public abstract class AbstractCompileMojo extends AbstractHaxeMojo {
+import java.io.File;
+import java.util.EnumMap;
 
-    /**
-     *  Main class
-     */
-    @Parameter
-    protected String main;
-
-    /**
-     * Compile in debug mode
-     */
-    @Parameter
-    protected boolean debug;
+@Mojo(name = "compileNeko", defaultPhase = LifecyclePhase.COMPILE)
+/**
+ * Compile in nekovm bytecode.
+ */
+public class CompileNekoMojo extends AbstractCompileMojo {
 
     @Component
-    protected HaxeCompiler compiler;
+    private HaxeCompiler compiler;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         super.execute();
 
-        compiler.setOutputDirectory(outputDirectory);
+        File output = new File(outputDirectory, project.getBuild().getFinalName() + ".n");
+
+        if (output.exists())
+            output.delete();
+
+        EnumMap<CompileTarget, String> targets = new EnumMap<CompileTarget, String>(CompileTarget.class);
+        targets.put(CompileTarget.neko, output.getName());
+
+        try
+        {
+            compiler.compile(project, targets, main, debug, false);
+        }
+        catch (Exception e)
+        {
+            throw new MojoFailureException("Neko compilation failed", e);
+        }
+
+        if (output.exists())
+            project.getArtifact().setFile(output);
     }
 }
