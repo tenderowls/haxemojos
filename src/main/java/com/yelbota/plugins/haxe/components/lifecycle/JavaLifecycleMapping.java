@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe;
+package com.yelbota.plugins.haxe.components.lifecycle;
 
-import org.apache.maven.plugins.annotations.Parameter;
+import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
+import org.apache.maven.lifecycle.mapping.LifecycleMapping;
+import org.codehaus.plexus.component.annotations.Component;
 
-public abstract class AbstractCompileMojo extends AbstractHaxeMojo {
+@Component( role = LifecycleMapping.class, hint = HaxeFileExtensions.JAR )
+public class JavaLifecycleMapping extends AbstractHaxeLifecycleMapping implements LifecycleMapping
+{
+    public String getCompiler()
+    {
+        return "com.yelbota.plugins:haxe-maven-plugin:compileJava";
+    }
 
-    /**
-     *  Main class
-     */
-    @Parameter
-    protected String main;
-
-    /**
-     * Compile in debug mode
-     */
-    @Parameter
-    protected boolean debug;
 }

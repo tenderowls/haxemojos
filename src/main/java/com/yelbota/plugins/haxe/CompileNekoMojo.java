@@ -15,36 +15,49 @@
  */
 package com.yelbota.plugins.haxe;
 
-import com.yelbota.plugins.haxe.components.nativeProgram.NativeProgram;
-import com.yelbota.plugins.haxe.components.nativeProgram.NativeProgramException;
+import com.yelbota.plugins.haxe.components.HaxeCompiler;
+import com.yelbota.plugins.haxe.utils.CompileTarget;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 
+import java.io.File;
+import java.util.EnumMap;
+
+@Mojo(name = "compileNeko", defaultPhase = LifecyclePhase.COMPILE)
 /**
- * Run tests with `neko`.
+ * Compile in nekovm bytecode.
  */
-@Mojo(name = "testRun", defaultPhase = LifecyclePhase.TEST)
-public final class TestRunMojo extends AbstractHaxeMojo {
+public class CompileNekoMojo extends AbstractCompileMojo {
 
-    @Component(hint = "neko")
-    private NativeProgram neko;
+    @Component
+    private HaxeCompiler haxeCompiler;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         super.execute();
 
+        File output = new File(outputDirectory, project.getBuild().getFinalName() + ".n");
+
+        if (output.exists())
+            output.delete();
+
+        EnumMap<CompileTarget, String> targets = new EnumMap<CompileTarget, String>(CompileTarget.class);
+        targets.put(CompileTarget.neko, output.getName());
+
         try
         {
-            neko.execute(project.getBuild().getFinalName() + "-test.n");
+            haxeCompiler.compile(project, targets, main, debug, false);
         }
-        catch (NativeProgramException e)
+        catch (Exception e)
         {
-            throw new MojoFailureException("Test failed", e);
+            throw new MojoFailureException("Neko compilation failed", e);
         }
+
+        if (output.exists())
+            project.getArtifact().setFile(output);
     }
 }

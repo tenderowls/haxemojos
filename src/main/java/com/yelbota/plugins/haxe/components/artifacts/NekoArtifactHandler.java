@@ -13,11 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe.tasks;
+package com.yelbota.plugins.haxe.components.artifacts;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
+import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
+import org.apache.maven.artifact.handler.ArtifactHandler;
+import org.codehaus.plexus.component.annotations.Component;
 
-public interface HaxeTask {
-    void execute() throws MojoExecutionException, MojoFailureException;
+@Component( role = ArtifactHandler.class, hint = HaxeFileExtensions.NEKO )
+public class NekoArtifactHandler extends AbstractHaxeArtifactHandler implements ArtifactHandler {
+
+    @Override
+    public String getType()
+    {
+        return HaxeFileExtensions.NEKO;
+    }
 }

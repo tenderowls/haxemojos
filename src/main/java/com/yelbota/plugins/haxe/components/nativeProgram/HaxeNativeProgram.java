@@ -13,18 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe.artifactHandlers;
+package com.yelbota.plugins.haxe.components.nativeProgram;
 
-import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
-import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.codehaus.plexus.component.annotations.Component;
 
-@Component( role = ArtifactHandler.class, hint = HaxeFileExtensions.HAR )
-public class HarArtifactHandler extends AbstractHaxeArtifactHandler implements ArtifactHandler {
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+@Component(role = NativeProgram.class, hint = "haxe", isolatedRealm = true)
+public final class HaxeNativeProgram extends AbstractNativeProgram {
 
     @Override
-    public String getType()
+    protected List<String> updateArguments(List<String> arguments)
     {
-        return HaxeFileExtensions.HAR;
+        List<String> list = new ArrayList<String>();
+        File executable = new File(directory, isWindows() ? "haxe.exe" : "haxe");
+        list.add(executable.getAbsolutePath());
+        list.addAll(arguments);
+
+        return list;
     }
 }
+

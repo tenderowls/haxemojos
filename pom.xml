@@ -82,7 +82,6 @@
                         <goals>
                             <goal>addPluginArtifactMetadata</goal>
                             <goal>descriptor</goal>
-                            <goal>helpmojo</goal>
                         </goals>
                     </execution>
                 </executions>

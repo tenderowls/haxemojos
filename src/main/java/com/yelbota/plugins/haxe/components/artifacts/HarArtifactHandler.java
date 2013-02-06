@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe;
+package com.yelbota.plugins.haxe.components.artifacts;
 
-import org.apache.maven.plugins.annotations.Parameter;
+import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
+import org.apache.maven.artifact.handler.ArtifactHandler;
+import org.codehaus.plexus.component.annotations.Component;
 
-public abstract class AbstractCompileMojo extends AbstractHaxeMojo {
+@Component( role = ArtifactHandler.class, hint = HaxeFileExtensions.HAR )
+public class HarArtifactHandler extends AbstractHaxeArtifactHandler implements ArtifactHandler {
 
-    /**
-     *  Main class
-     */
-    @Parameter
-    protected String main;
-
-    /**
-     * Compile in debug mode
-     */
-    @Parameter
-    protected boolean debug;
+    @Override
+    public String getType()
+    {
+        return HaxeFileExtensions.HAR;
+    }
 }

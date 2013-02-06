@@ -13,33 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe.artifactHandlers;
+package com.yelbota.plugins.haxe.components.lifecycle;
 
-import org.apache.maven.artifact.handler.DefaultArtifactHandler;
+import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
+import org.apache.maven.lifecycle.mapping.LifecycleMapping;
+import org.codehaus.plexus.component.annotations.Component;
 
-public class AbstractHaxeArtifactHandler extends DefaultArtifactHandler {
-
-    @Override
-    public String getExtension()
+@Component( role = LifecycleMapping.class, hint = HaxeFileExtensions.HAR)
+public class HarLifecycleMapping extends AbstractHaxeLifecycleMapping implements LifecycleMapping
+{
+    public String getCompiler()
     {
-        return getType();
+        return "com.yelbota.plugins:haxe-maven-plugin:compileHar";
     }
 
-    @Override
-    public String getPackaging()
-    {
-        return getType();  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public boolean isIncludesDependencies()
-    {
-        return false;
-    }
-
-    @Override
-    public String getLanguage()
-    {
-        return "haxe";
-    }
 }

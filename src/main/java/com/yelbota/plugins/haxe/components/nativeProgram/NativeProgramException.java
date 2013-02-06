@@ -13,21 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe;
+package com.yelbota.plugins.haxe.components.nativeProgram;
 
-import org.apache.maven.plugins.annotations.Parameter;
+public class NativeProgramException extends Exception {
 
-public abstract class AbstractCompileMojo extends AbstractHaxeMojo {
-
-    /**
-     *  Main class
-     */
-    @Parameter
-    protected String main;
-
-    /**
-     * Compile in debug mode
-     */
-    @Parameter
-    protected boolean debug;
+    public NativeProgramException(String s, Throwable e)
+    {
+        super(s, e);
+    }
 }

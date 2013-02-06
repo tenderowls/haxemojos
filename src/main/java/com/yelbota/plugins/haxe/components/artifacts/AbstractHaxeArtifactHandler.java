@@ -13,21 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe;
+package com.yelbota.plugins.haxe.components.artifacts;
 
-import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 
-public abstract class AbstractCompileMojo extends AbstractHaxeMojo {
+public class AbstractHaxeArtifactHandler extends DefaultArtifactHandler {
 
-    /**
-     *  Main class
-     */
-    @Parameter
-    protected String main;
+    @Override
+    public String getExtension()
+    {
+        return getType();
+    }
 
-    /**
-     * Compile in debug mode
-     */
-    @Parameter
-    protected boolean debug;
+    @Override
+    public String getPackaging()
+    {
+        return getType();  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean isIncludesDependencies()
+    {
+        return false;
+    }
+
+    @Override
+    public String getLanguage()
+    {
+        return "haxe";
+    }
 }

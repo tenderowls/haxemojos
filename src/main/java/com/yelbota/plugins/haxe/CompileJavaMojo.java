@@ -15,28 +15,64 @@
  */
 package com.yelbota.plugins.haxe;
 
-import com.yelbota.plugins.haxe.tasks.compile.CompileJavaTask;
+import com.yelbota.plugins.haxe.components.HaxeCompiler;
+import com.yelbota.plugins.haxe.utils.CompileTarget;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
-@Mojo(name="compileJava", defaultPhase = LifecyclePhase.COMPILE)
+import java.io.File;
+import java.util.EnumMap;
+
+/**
+ * Compile `jar`. Note, that this `jar` is different with `jar` which compiles with
+ * `maven-compiler-plugin`. Haxe jar includes all dependencies and Haxe runtime classes.
+ * If you want share your haxe code in the module, use `har` packaging.
+ */
+@Mojo(name="compileJava", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class CompileJavaMojo extends AbstractCompileMojo {
 
-    /**
-     * hxjava dependency version. also you can add org.haxe.lib:hxjava:version:haxelib dependency manually.
-     */
-    @Parameter(defaultValue = "2.10.2")
-    private String hxJavaVersion;
+    @Component
+    private HaxeCompiler haxeCompiler;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         super.execute();
 
-        CompileJavaTask task = new CompileJavaTask(pluginHome, haxeUnpackDirectory, nekoUnpackDirectory, outputDirectory, getLog(), project, main, debug, hxJavaVersion);
-        task.execute();
+        File output = new File(outputDirectory, project.getBuild().getFinalName());
+
+        if (output.exists() && output.isFile())
+            output.delete();
+
+        EnumMap<CompileTarget, String> targets = new EnumMap<CompileTarget, String>(CompileTarget.class);
+        targets.put(CompileTarget.java, output.getName());
+
+        try
+        {
+            haxeCompiler.compile(project, targets, main, debug, false);
+        }
+        catch (Exception e)
+        {
+            throw new MojoFailureException("Java compilation failed", e);
+        }
+
+        File jar = new File(output, output.getName() + ".jar");
+
+        // Include artifact in reactor.
+        if (jar.exists())
+        {
+            String artifactFinalName = project.getBuild().getFinalName() + "." + project.getPackaging();
+            File artifactFile = new File(outputDirectory, artifactFinalName);
+
+            if (artifactFile.exists())
+                artifactFile.delete();
+
+            jar.renameTo(artifactFile);
+            project.getArtifact().setFile(artifactFile);
+        }
     }
 }

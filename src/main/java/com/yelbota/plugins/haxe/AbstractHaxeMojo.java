@@ -15,35 +15,42 @@
  */
 package com.yelbota.plugins.haxe;
 
-import org.apache.maven.artifact.Artifact;
+import com.yelbota.plugins.haxe.components.NativeBootstrap;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
 
 import java.io.File;
-import java.util.List;
 
-abstract public class AbstractHaxeMojo extends AbstractMojo {
+public abstract class AbstractHaxeMojo extends AbstractMojo {
+
+    @Component
+    private NativeBootstrap bootstrap;
+
+    @Parameter(property = "localRepository", required = true, readonly = true)
+    private ArtifactRepository localRepository;
 
     @Component
     protected MavenProject project;
 
-    @Component
-    protected RepositorySystem repositorySystem;
-
-    @Component
-    public List<Artifact> pluginArtifacts;
-
-    @Parameter (property="localRepository", required = true, readonly = true)
-    protected ArtifactRepository localRepository;
-
-    @Parameter (property="project.remoteArtifactRepositories", required = true, readonly = true)
-    protected List<ArtifactRepository> remoteRepositories;
-
-    // TODO WTF
-    @Parameter(property = "project.build.directory", required = true)
     protected File outputDirectory;
+
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException
+    {
+        try
+        {
+            outputDirectory = new File(project.getBuild().getDirectory());
+            bootstrap.initialize(project, localRepository);
+        }
+        catch (Exception e)
+        {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+    }
 }

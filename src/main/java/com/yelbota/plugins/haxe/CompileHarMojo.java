@@ -15,44 +15,46 @@
  */
 package com.yelbota.plugins.haxe;
 
-import com.yelbota.plugins.haxe.tasks.HaxeTask;
-import com.yelbota.plugins.haxe.tasks.compile.CompileJavaTask;
-import com.yelbota.plugins.haxe.tasks.compile.CompileNekoTask;
+import com.yelbota.plugins.haxe.components.HaxeCompiler;
 import com.yelbota.plugins.haxe.utils.CompileTarget;
 import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.*;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.EnumMap;
+import java.util.Set;
 
-@Mojo(name="compileHar", defaultPhase = LifecyclePhase.COMPILE)
+
+/**
+ * Builds a `har` package. This is a zip archive which
+ * contains metainfo about supported compilation targets.
+ */
+@Mojo(name="compileHar", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class CompileHarMojo extends AbstractCompileMojo {
 
     /**
-     * Compile targets for `har`. Ignored in another packaging types.
+     * Validation targets for `har`. HMP will try to build project with
+     * all of declared targets.
      */
     @Parameter(required = true)
-    private List<CompileTarget> targets;
+    private Set<CompileTarget> targets;
+
+    @Component
+    private HaxeCompiler haxeCompiler;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         super.execute();
 
-        for (CompileTarget target : targets)
-        {
-            HaxeTask task = getCompileTask(target);
-            task.execute();
-        }
-
         try
         {
+            validateTargets(targets);
+
             ZipArchiver archiver = new ZipArchiver();
             for (String compileRoot: project.getCompileSourceRoots()) {
                 archiver.addDirectory(new File(compileRoot));
@@ -66,19 +68,39 @@ public class CompileHarMojo extends AbstractCompileMojo {
         {
             throw new MojoFailureException("Error occurred during `har` package creation", e);
         }
+        catch (Exception e)
+        {
+            throw new MojoFailureException("Har validation failed", e);
+        }
     }
 
-    public HaxeTask getCompileTask(CompileTarget target)
+    private void validateTargets(Set<CompileTarget> targets) throws Exception
     {
-        switch (target)
+        File outputBase = new File(outputDirectory, project.getBuild().getFinalName() + "-harValidate");
+        EnumMap<CompileTarget, String> compileTargets = new EnumMap<CompileTarget, String>(CompileTarget.class);
+
+        if (!outputBase.exists())
+            outputBase.mkdirs();
+
+        for (CompileTarget target: targets)
         {
-            case java:
-                return new CompileJavaTask(pluginHome, haxeUnpackDirectory, nekoUnpackDirectory, outputDirectory, getLog(), project, main, debug, null);
-            case neko:
-                return new CompileNekoTask(pluginHome, haxeUnpackDirectory, nekoUnpackDirectory, outputDirectory, getLog(), project, main, debug);
+            File outputFile = outputBase;
+
+            switch (target) {
+                case java: {
+                    outputFile = new File(outputBase, "java");
+                    break;
+                }
+                case neko: {
+                    outputFile = new File(outputBase, "neko.n");
+                    break;
+                }
+            }
+
+            compileTargets.put(target, outputFile.getAbsolutePath());
         }
 
-        return null;
+        haxeCompiler.compile(project, compileTargets, main, debug, false);
     }
 
 }
