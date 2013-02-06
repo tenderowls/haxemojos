@@ -136,9 +136,10 @@ public class NativeBootstrap {
             if (artifactKey.equals(HAXE_COMPILER_KEY) || artifactKey.equals(NEKO_KEY))
             {
                 String classifier = getDefaultClassifier();
-                dependency.setClassifier(classifier);
-                dependency.setType(getSDKArtifactPackaging(classifier));
-                Artifact artifact = resolveArtifact(repositorySystem.createDependencyArtifact(dependency));
+                Artifact artifact = resolveArtifact(repositorySystem.createArtifactWithClassifier(
+                        dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion(),
+                        getSDKArtifactPackaging(classifier), classifier
+                ));
                 artifactsMap.put(artifactKey, artifact);
             }
         }
@@ -223,7 +224,7 @@ public class NativeBootstrap {
 
         request.setArtifact(artifact);
         request.setLocalRepository(localRepository);
-        request.setRemoteRepositories(project.getPluginArtifactRepositories());
+        request.setRemoteRepositories(project.getRemoteArtifactRepositories());
 
         if (!repositorySystem.resolve(request).isSuccess())
         {

@@ -25,7 +25,9 @@ import org.sonatype.aether.spi.connector.*;
 import org.sonatype.aether.transfer.ArtifactTransferException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class HaxelibRepositoryConnector implements RepositoryConnector {
 
@@ -37,9 +39,11 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
 
     private final RemoteRepository repository;
 
-    private NativeProgram haxelib;
+    private final RepositoryConnector defaultRepositoryConnector;
 
-    private Logger logger;
+    private final NativeProgram haxelib;
+
+    private final Logger logger;
 
     //-------------------------------------------------------------------------
     //
@@ -47,9 +51,10 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
     //
     //-------------------------------------------------------------------------
 
-    public HaxelibRepositoryConnector(RemoteRepository repository, NativeProgram haxelib, Logger logger)
+    public HaxelibRepositoryConnector(RemoteRepository repository, RepositoryConnector defaultRepositoryConnector, NativeProgram haxelib, Logger logger)
     {
         this.repository = repository;
+        this.defaultRepositoryConnector = defaultRepositoryConnector;
         this.haxelib = haxelib;
         this.logger = logger;
     }
@@ -57,10 +62,37 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
     @Override
     public void get(Collection<? extends ArtifactDownload> artifactDownloads, Collection<? extends MetadataDownload> metadataDownloads)
     {
-        for (ArtifactDownload artifactDownload : artifactDownloads)
+        if (artifactDownloads == null)
+        {
+            defaultRepositoryConnector.get(artifactDownloads, metadataDownloads);
+        }
+        else
+        {
+            ArrayList<ArtifactDownload> normalArtifacts = new ArrayList<ArtifactDownload>();
+            ArrayList<ArtifactDownload> haxelibArtifacts = new ArrayList<ArtifactDownload>();
+
+            // Separate artifacts collection. Get haxelib artifacts and all others.
+            for (ArtifactDownload artifactDownload : artifactDownloads)
+            {
+                Artifact artifact = artifactDownload.getArtifact();
+                if (artifact.getExtension().equals(HaxeFileExtensions.HAXELIB))
+                    haxelibArtifacts.add(artifactDownload);
+                else normalArtifacts.add(artifactDownload);
+            }
+
+            // Get normal artifacts
+            defaultRepositoryConnector.get(normalArtifacts, metadataDownloads);
+
+            getHaxelibs(haxelibArtifacts);
+        }
+    }
+
+    private void getHaxelibs(List<ArtifactDownload> haxelibArtifacts)
+    {
+        for (ArtifactDownload artifactDownload : haxelibArtifacts)
         {
             Artifact artifact = artifactDownload.getArtifact();
-
+            logger.info("Resolving " + artifact);
             if (artifact.getExtension().equals(HaxeFileExtensions.HAXELIB))
             {
                 try

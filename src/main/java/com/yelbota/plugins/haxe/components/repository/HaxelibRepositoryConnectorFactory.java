@@ -30,6 +30,9 @@ import org.sonatype.aether.transfer.NoRepositoryConnectorException;
 @Component(role = RepositoryConnectorFactory.class, hint = "haxelib")
 public class HaxelibRepositoryConnectorFactory implements RepositoryConnectorFactory, Service {
 
+    @Requirement(hint = "wagon")
+    private RepositoryConnectorFactory defaultRepositoryConnectorFactory;
+
     @Requirement(hint = "haxelib")
     private NativeProgram haxelib;
 
@@ -40,7 +43,8 @@ public class HaxelibRepositoryConnectorFactory implements RepositoryConnectorFac
     public RepositoryConnector newInstance(RepositorySystemSession session, RemoteRepository repository) throws
             NoRepositoryConnectorException
     {
-        return new HaxelibRepositoryConnector(repository, haxelib, logger);
+        RepositoryConnector defaultRepositoryConnector = defaultRepositoryConnectorFactory.newInstance(session, repository);
+        return new HaxelibRepositoryConnector(repository, defaultRepositoryConnector, haxelib, logger);
     }
 
     @Override
