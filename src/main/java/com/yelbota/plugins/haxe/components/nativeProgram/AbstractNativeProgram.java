@@ -96,13 +96,16 @@ public abstract class AbstractNativeProgram implements NativeProgram {
 
     public int execute(List<String> arguments) throws NativeProgramException
     {
+        return execute(arguments, logger);
+    }
+
+    public int execute(List<String> arguments, Logger outputLogger) throws NativeProgramException
+    {
         try
         {
             String[] environment = getEnvironment();
-            logger.debug("environment vars[0]. = " + environment[0]);
-            logger.debug("environment vars[1]. = " + environment[1]);
             arguments = updateArguments(arguments);
-            logger.debug("arguments = " + StringUtils.join(arguments.iterator(), " "));
+            logger.debug("Executing: " + StringUtils.join(arguments.iterator(), " "));
 
             Process process = Runtime.getRuntime().exec(
                     arguments.toArray(new String[]{}),
@@ -110,7 +113,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
                     outputDirectory
             );
 
-            return processExecution(process);
+            return processExecution(process, outputLogger);
         }
         catch (IOException e)
         {
@@ -173,18 +176,18 @@ public abstract class AbstractNativeProgram implements NativeProgram {
 
     protected abstract List<String> updateArguments(List<String> arguments);
 
-    protected int processExecution(Process process) throws NativeProgramException
+    protected int processExecution(Process process, Logger outputLogger) throws NativeProgramException
     {
         try
         {
             CleanStream cleanError = new CleanStream(
                     process.getErrorStream(),
-                    logger, CleanStream.CleanStreamType.ERROR
+                    outputLogger, CleanStream.CleanStreamType.ERROR
             );
 
             CleanStream cleanOutput = new CleanStream(
                     process.getInputStream(),
-                    logger, CleanStream.CleanStreamType.INFO
+                    outputLogger, CleanStream.CleanStreamType.INFO
             );
 
             cleanError.start();

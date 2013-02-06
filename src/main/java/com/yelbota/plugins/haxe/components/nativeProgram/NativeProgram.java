@@ -16,6 +16,7 @@
 package com.yelbota.plugins.haxe.components.nativeProgram;
 
 import org.apache.maven.artifact.Artifact;
+import org.codehaus.plexus.logging.Logger;
 
 import java.io.File;
 import java.util.List;
@@ -26,6 +27,8 @@ public interface NativeProgram {
     void initialize(Artifact artifact, File outputDirectory, File pluginHome, Set<String> path);
 
     int execute(List<String> arguments) throws NativeProgramException;
+
+    int execute(List<String> arguments, Logger outputLogger) throws NativeProgramException;
 
     int execute(String[] arguments) throws NativeProgramException;
 

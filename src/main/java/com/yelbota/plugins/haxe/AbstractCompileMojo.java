@@ -15,6 +15,10 @@
  */
 package com.yelbota.plugins.haxe;
 
+import com.yelbota.plugins.haxe.components.HaxeCompiler;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 
 public abstract class AbstractCompileMojo extends AbstractHaxeMojo {
@@ -30,4 +34,15 @@ public abstract class AbstractCompileMojo extends AbstractHaxeMojo {
      */
     @Parameter
     protected boolean debug;
+
+    @Component
+    protected HaxeCompiler compiler;
+
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException
+    {
+        super.execute();
+
+        compiler.setOutputDirectory(outputDirectory);
+    }
 }

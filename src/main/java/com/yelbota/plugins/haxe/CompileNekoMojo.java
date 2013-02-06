@@ -33,7 +33,7 @@ import java.util.EnumMap;
 public class CompileNekoMojo extends AbstractCompileMojo {
 
     @Component
-    private HaxeCompiler haxeCompiler;
+    private HaxeCompiler compiler;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
@@ -50,7 +50,7 @@ public class CompileNekoMojo extends AbstractCompileMojo {
 
         try
         {
-            haxeCompiler.compile(project, targets, main, debug, false);
+            compiler.compile(project, targets, main, debug, false);
         }
         catch (Exception e)
         {

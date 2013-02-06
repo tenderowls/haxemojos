@@ -15,11 +15,9 @@
  */
 package com.yelbota.plugins.haxe;
 
-import com.yelbota.plugins.haxe.components.HaxeCompiler;
 import com.yelbota.plugins.haxe.utils.CompileTarget;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -34,9 +32,6 @@ import java.util.EnumMap;
  */
 @Mojo(name="compileJava", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class CompileJavaMojo extends AbstractCompileMojo {
-
-    @Component
-    private HaxeCompiler haxeCompiler;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
@@ -53,7 +48,7 @@ public class CompileJavaMojo extends AbstractCompileMojo {
 
         try
         {
-            haxeCompiler.compile(project, targets, main, debug, false);
+            compiler.compile(project, targets, main, debug, false);
         }
         catch (Exception e)
         {

@@ -15,15 +15,21 @@
  */
 package com.yelbota.plugins.haxe;
 
-import com.yelbota.plugins.haxe.components.HaxeCompiler;
 import com.yelbota.plugins.haxe.utils.CompileTarget;
+import com.yelbota.plugins.haxe.utils.HarMetadata;
 import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.*;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Set;
@@ -33,7 +39,7 @@ import java.util.Set;
  * Builds a `har` package. This is a zip archive which
  * contains metainfo about supported compilation targets.
  */
-@Mojo(name="compileHar", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "compileHar", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class CompileHarMojo extends AbstractCompileMojo {
 
     /**
@@ -43,9 +49,6 @@ public class CompileHarMojo extends AbstractCompileMojo {
     @Parameter(required = true)
     private Set<CompileTarget> targets;
 
-    @Component
-    private HaxeCompiler haxeCompiler;
-
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
@@ -53,16 +56,20 @@ public class CompileHarMojo extends AbstractCompileMojo {
 
         try
         {
-            validateTargets(targets);
+            File outputBase = new File(outputDirectory, project.getBuild().getFinalName() + "-harValidate");
+            validateTargets(outputBase);
+            File metadata = createHarMetadata(outputBase);
 
             ZipArchiver archiver = new ZipArchiver();
-            for (String compileRoot: project.getCompileSourceRoots()) {
+            archiver.addFile(metadata, HarMetadata.METADATA_FILE_NAME);
+
+            for (String compileRoot : project.getCompileSourceRoots())
                 archiver.addDirectory(new File(compileRoot));
-            }
 
             File destFile = new File(outputDirectory, project.getBuild().getFinalName() + "." + HaxeFileExtensions.HAR);
             archiver.setDestFile(destFile);
             archiver.createArchive();
+            project.getArtifact().setFile(destFile);
         }
         catch (IOException e)
         {
@@ -74,24 +81,41 @@ public class CompileHarMojo extends AbstractCompileMojo {
         }
     }
 
-    private void validateTargets(Set<CompileTarget> targets) throws Exception
+    private File createHarMetadata(File outputBase) throws Exception
     {
-        File outputBase = new File(outputDirectory, project.getBuild().getFinalName() + "-harValidate");
+        HarMetadata harMetaData = new HarMetadata();
+        harMetaData.target = targets;
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(HarMetadata.class, CompileTarget.class);
+        File metadataFile = new File(outputBase, HarMetadata.METADATA_FILE_NAME);
+        FileOutputStream stream = new FileOutputStream(metadataFile);
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        marshaller.marshal(harMetaData, stream);
+
+        return metadataFile;
+    }
+
+    private void validateTargets(File outputBase) throws Exception
+    {
         EnumMap<CompileTarget, String> compileTargets = new EnumMap<CompileTarget, String>(CompileTarget.class);
 
         if (!outputBase.exists())
             outputBase.mkdirs();
 
-        for (CompileTarget target: targets)
+        for (CompileTarget target : targets)
         {
             File outputFile = outputBase;
 
-            switch (target) {
-                case java: {
+            switch (target)
+            {
+                case java:
+                {
                     outputFile = new File(outputBase, "java");
                     break;
                 }
-                case neko: {
+                case neko:
+                {
                     outputFile = new File(outputBase, "neko.n");
                     break;
                 }
@@ -100,7 +124,6 @@ public class CompileHarMojo extends AbstractCompileMojo {
             compileTargets.put(target, outputFile.getAbsolutePath());
         }
 
-        haxeCompiler.compile(project, compileTargets, main, debug, false);
+        compiler.compile(project, compileTargets, main, debug, false);
     }
-
 }

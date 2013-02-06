@@ -17,21 +17,33 @@ package com.yelbota.plugins.haxe.components;
 
 import com.yelbota.plugins.haxe.components.nativeProgram.NativeProgram;
 import com.yelbota.plugins.haxe.utils.CompileTarget;
+import com.yelbota.plugins.haxe.utils.HarMetadata;
 import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component(role = HaxeCompiler.class)
 public final class HaxeCompiler {
 
     @Requirement(hint = "haxe")
     private NativeProgram haxe;
+
+    @Requirement
+    private Logger logger;
+
+    private File outputDirectory;
 
     public void compile(MavenProject project, Map<CompileTarget, String> targets, String main, boolean debug, boolean includeTestSources) throws Exception
     {
@@ -53,6 +65,7 @@ public final class HaxeCompiler {
         }
 
         addLibs(args, project);
+        addHars(args, project, targets.keySet());
         addMain(args, main);
         addDebug(args, debug);
 
@@ -71,7 +84,7 @@ public final class HaxeCompiler {
 
     private void addLibs(List<String> argumentsList, MavenProject project)
     {
-        for (Artifact artifact : project.getDependencyArtifacts())
+        for (Artifact artifact : project.getArtifacts())
         {
             if (artifact.getType().equals(HaxeFileExtensions.HAXELIB))
             {
@@ -103,9 +116,46 @@ public final class HaxeCompiler {
             argumentsList.add("-debug");
     }
 
-    private void addHars(List<String> argumentsList, MavenProject project)
+    private void addHars(List<String> argumentsList, MavenProject project, Set<CompileTarget> targets)
     {
-        // TODO unpack sources of haxe projects which attached as dependencies.
+        File dependenciesDirectory = new File(outputDirectory, "dependencies");
+
+        if (!dependenciesDirectory.exists())
+            dependenciesDirectory.mkdir();
+
+        for (Artifact artifact: project.getArtifacts())
+        {
+            if (artifact.getType().equals(HaxeFileExtensions.HAR))
+            {
+                File harUnpackDirectory = new File(dependenciesDirectory, artifact.getArtifactId());
+
+                if (!harUnpackDirectory.exists())
+                {
+                    harUnpackDirectory.mkdir();
+                    ZipUnArchiver unArchiver = new ZipUnArchiver();
+                    unArchiver.enableLogging(logger);
+                    unArchiver.setSourceFile(artifact.getFile());
+                    unArchiver.setDestDirectory(harUnpackDirectory);
+                    unArchiver.extract();
+                }
+
+                try
+                {
+                    File metadataFile = new File(harUnpackDirectory, HarMetadata.METADATA_FILE_NAME);
+                    JAXBContext jaxbContext = JAXBContext.newInstance(HarMetadata.class, CompileTarget.class);
+                    HarMetadata metadata = (HarMetadata) jaxbContext.createUnmarshaller().unmarshal(metadataFile);
+
+                    if (!metadata.target.containsAll(targets))
+                        logger.warn("Dependency " + artifact + " is not compatible with your compile targets.");
+                }
+                catch (JAXBException e)
+                {
+                    logger.warn("Can't read " + artifact + "metadata", e);
+                }
+
+                addSourcePath(argumentsList, harUnpackDirectory.getAbsolutePath());
+            }
+        }
     }
 
     private void addMain(List<String> argumentsList, String main)
@@ -118,5 +168,10 @@ public final class HaxeCompiler {
     {
         argumentsList.add("-cp");
         argumentsList.add(sourcePath);
+    }
+
+    public void setOutputDirectory(File outputDirectory)
+    {
+        this.outputDirectory = outputDirectory;
     }
 }
