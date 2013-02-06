@@ -24,6 +24,7 @@ import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
+import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
@@ -225,9 +226,23 @@ public class NativeBootstrap {
         request.setArtifact(artifact);
         request.setLocalRepository(localRepository);
         request.setRemoteRepositories(project.getRemoteArtifactRepositories());
+        ArtifactResolutionResult resolutionResult = repositorySystem.resolve(request);
 
-        if (!repositorySystem.resolve(request).isSuccess())
+        if (!resolutionResult.isSuccess())
         {
+            if (artifact.getType().equals(TGZ)) {
+                artifact = repositorySystem.createArtifactWithClassifier(
+                        artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
+                        TARGZ, artifact.getClassifier());
+                request = new ArtifactResolutionRequest();
+                request.setArtifact(artifact);
+                request.setLocalRepository(localRepository);
+                request.setRemoteRepositories(project.getRemoteArtifactRepositories());
+                resolutionResult = repositorySystem.resolve(request);
+                if (resolutionResult.isSuccess()) {
+                    return artifact;
+                }
+            }
             String message = "Failed to resolve artifact " + artifact;
             throw new Exception(message);
         }
@@ -237,6 +252,7 @@ public class NativeBootstrap {
 
     private static final String ZIP = "zip";
     private static final String TGZ = "tgz";
+    private static final String TARGZ = "tar.gz";
     private static final String OS_CLASSIFIER_MAC = "mac";
     private static final String OS_CLASSIFIER_WINDOWS = "windows";
     private static final String OS_CLASSIFIER_LINUX = "linux";
