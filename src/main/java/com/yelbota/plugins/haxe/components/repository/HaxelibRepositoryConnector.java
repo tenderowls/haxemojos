@@ -24,6 +24,7 @@ import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.spi.connector.*;
 import org.sonatype.aether.transfer.ArtifactTransferException;
 
+import java.io.IOException;
 import java.util.Collection;
 
 public class HaxelibRepositoryConnector implements RepositoryConnector {
@@ -74,6 +75,19 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
                     {
                         artifactDownload.setException(new ArtifactTransferException(
                                 artifact, repository, "Can't resolve artifact " + artifact.toString()));
+                    }
+                    else
+                    {
+                        try
+                        {
+                            // TODO In this case we can had a problems with new version of plugin.
+                            // TODO Need custom dependency resolver.
+                            artifactDownload.getFile().createNewFile();
+                        }
+                        catch (IOException e)
+                        {
+                            logger.error("Can't create haxelib dummy artifact", e);
+                        }
                     }
                 }
                 catch (NativeProgramException e)
