@@ -41,7 +41,7 @@ public class DependencyHaxeMojo extends AbstractHaxeMojo {
     private String haxeVersion;
 
     public static final String ZIP = "zip";
-    public static final String TGZ = "tgz";
+    public static final String TGZ = "tar.gz";
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
