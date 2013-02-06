@@ -17,6 +17,7 @@ package com.yelbota.plugins.haxe.components;
 
 import com.yelbota.plugins.haxe.components.nativeProgram.NativeProgram;
 import com.yelbota.plugins.haxe.utils.CompileTarget;
+import com.yelbota.plugins.haxe.utils.CompilerLogger;
 import com.yelbota.plugins.haxe.utils.HarMetadata;
 import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
 import org.apache.maven.artifact.Artifact;
@@ -29,10 +30,7 @@ import org.codehaus.plexus.logging.Logger;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component(role = HaxeCompiler.class)
 public final class HaxeCompiler {
@@ -72,13 +70,29 @@ public final class HaxeCompiler {
         if (additionalArguments != null)
             args.addAll(additionalArguments);
 
-        for (CompileTarget target : targets.keySet()) {
+        for (CompileTarget target : targets.keySet())
+        {
             String output = targets.get(target);
             List<String> argsClone = new ArrayList<String>();
             argsClone.addAll(args);
             addTarget(argsClone, target);
             argsClone.add(output);
-            haxe.execute(argsClone);
+
+            CompilerLogger compilerLogger = new CompilerLogger(logger);
+            haxe.execute(argsClone, compilerLogger);
+
+            if (compilerLogger.getErrors().size() > 0)
+            {
+                logger.info("-------------------------------------------------------------");
+                logger.error("COMPILATION ERROR :");
+                logger.info("-------------------------------------------------------------");
+
+                for (String error: compilerLogger.getErrors()) {
+                    logger.error(error);
+                }
+
+                throw new Exception("Compilation failure");
+            }
         }
     }
 
