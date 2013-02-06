@@ -45,6 +45,11 @@ public class UnpackHaxeMojo extends DependencyHaxeMojo {
     private Artifact nekoArtifact;
 
     /**
+     * Resolved artifact with nme package.
+     */
+    protected Artifact nmeArtifact;
+
+    /**
      * Haxe unpack directory
      */
     protected File haxeUnpackDirectory;
@@ -53,6 +58,11 @@ public class UnpackHaxeMojo extends DependencyHaxeMojo {
      * Neko unpack directory
      */
     protected File nekoUnpackDirectory;
+
+    /**
+     * NME unpack directory
+     */
+    protected File nmeUnpackDirectory;
 
 
     @Override
@@ -69,9 +79,13 @@ public class UnpackHaxeMojo extends DependencyHaxeMojo {
 
         haxeArtifact = getHaxeArtifact();
         nekoArtifact = getNekoArtifact();
+        nmeArtifact = getNMEArtifact();
 
         haxeUnpackDirectory = unpackArtifact(haxeArtifact);
         nekoUnpackDirectory = unpackArtifact(nekoArtifact);
+        if (nmeArtifact != null) {
+            nmeUnpackDirectory = unpackArtifact(nmeArtifact);
+        }
     }
 
     private File unpackArtifact(Artifact artifact) throws MojoFailureException

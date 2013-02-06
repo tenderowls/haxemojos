@@ -40,6 +40,15 @@ public class DependencyHaxeMojo extends AbstractHaxeMojo {
     @Parameter(property = "haxeVersion")
     private String haxeVersion;
 
+    /**
+     * NME version
+     */
+    @Parameter(property = "nmeVersion")
+    private String nmeVersion;
+
+    //@Parameter(property = "dependencies")
+    //private List<DependencyNode> haxeDependencies;
+
     public static final String ZIP = "zip";
     public static final String TGZ = "tar.gz";
 
@@ -48,6 +57,7 @@ public class DependencyHaxeMojo extends AbstractHaxeMojo {
     {
         getHaxeArtifact();
         getNekoArtifact();
+        getNMEArtifact();
     }
 
     public Artifact getHaxeArtifact() throws MojoFailureException
@@ -113,6 +123,41 @@ public class DependencyHaxeMojo extends AbstractHaxeMojo {
                 localRepository,
                 remoteRepositories
         );
+
+        return artifact;
+    }
+
+    public Artifact getNMEArtifact() throws MojoFailureException
+    {
+        DependencyHelper dependencyHelper = null;
+        Artifact artifact = null;
+        if (nmeVersion != null) {
+            dependencyHelper = new HaxeDependencyHelper() {
+                @Override
+                protected String getDefaultArtifactId() throws MojoFailureException
+                {
+                    return "nme";
+                }
+
+                @Override
+                protected String getDefaultGroupId() throws MojoFailureException
+                {
+                    return "org.haxenme";
+                }
+
+                @Override
+                protected String getDefaultVersion() throws MojoFailureException
+                {
+                    return nmeVersion;
+                }
+            };
+            artifact = dependencyHelper.resolve(
+                pluginArtifacts,
+                repositorySystem,
+                localRepository,
+                remoteRepositories
+            );
+        }
 
         return artifact;
     }
