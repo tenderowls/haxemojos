@@ -24,7 +24,7 @@ import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.spi.connector.*;
 import org.sonatype.aether.transfer.ArtifactTransferException;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -92,33 +92,28 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
         for (ArtifactDownload artifactDownload : haxelibArtifacts)
         {
             Artifact artifact = artifactDownload.getArtifact();
-            logger.info("Resolving " + artifact);
+            logger.debug("Resolving " + artifact);
+
             if (artifact.getExtension().equals(HaxeFileExtensions.HAXELIB))
             {
                 try
                 {
-                    int code = haxelib.execute(
-                            "install",
-                            artifact.getArtifactId(),
-                            artifact.getVersion()
-                    );
+                    File haxelibDir = new File(haxelib.getHome(), "_haxelib");
+                    File artifactDir = new File(haxelibDir, artifact.getArtifactId());
+                    File installedDir = new File(artifactDir, artifact.getVersion().replaceAll("\\.", ","));
 
-                    if (code > 0)
+                    if (!installedDir.exists())
                     {
-                        artifactDownload.setException(new ArtifactTransferException(
-                                artifact, repository, "Can't resolve artifact " + artifact.toString()));
-                    }
-                    else
-                    {
-                        try
+                        int code = haxelib.execute(
+                                "install",
+                                artifact.getArtifactId(),
+                                artifact.getVersion()
+                        );
+
+                        if (code > 0)
                         {
-                            // TODO In this case we can had a problems with new version of plugin.
-                            // TODO Need custom dependency resolver.
-                            artifactDownload.getFile().createNewFile();
-                        }
-                        catch (IOException e)
-                        {
-                            logger.error("Can't create haxelib dummy artifact", e);
+                            artifactDownload.setException(new ArtifactTransferException(
+                                    artifact, repository, "Can't resolve artifact " + artifact.toString()));
                         }
                     }
                 }

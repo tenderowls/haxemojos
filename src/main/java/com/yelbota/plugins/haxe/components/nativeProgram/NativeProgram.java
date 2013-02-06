@@ -39,4 +39,6 @@ public interface NativeProgram {
     int execute(String arg1, String arg2, String arg3) throws NativeProgramException;
 
     int execute(String arg1, String arg2, String arg3, String arg4) throws NativeProgramException;
+
+    public File getHome();
 }

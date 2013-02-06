@@ -40,11 +40,11 @@ public class CompileJavaMojo extends AbstractCompileMojo {
 
         File output = new File(outputDirectory, project.getBuild().getFinalName());
 
-        if (output.exists() && output.isFile())
+        if (output.exists() && !output.isDirectory())
             output.delete();
 
         EnumMap<CompileTarget, String> targets = new EnumMap<CompileTarget, String>(CompileTarget.class);
-        targets.put(CompileTarget.java, output.getName());
+        targets.put(CompileTarget.java, output.getAbsolutePath());
 
         try
         {
@@ -60,12 +60,8 @@ public class CompileJavaMojo extends AbstractCompileMojo {
         // Include artifact in reactor.
         if (jar.exists())
         {
-            String artifactFinalName = project.getBuild().getFinalName() + "." + project.getPackaging();
-            File artifactFile = new File(outputDirectory, artifactFinalName);
-
-            if (artifactFile.exists())
-                artifactFile.delete();
-
+            File artifactFile = new File(outputDirectory, jar.getName());
+            if (artifactFile.exists()) artifactFile.delete();
             jar.renameTo(artifactFile);
             project.getArtifact().setFile(artifactFile);
         }

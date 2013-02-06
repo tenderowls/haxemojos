@@ -160,12 +160,10 @@ public abstract class AbstractNativeProgram implements NativeProgram {
         return execute(new String[]{arg1, arg2, arg3, arg4});
     }
 
-    protected String[] getEnvironment()
+    @Override
+    public File getHome()
     {
-        return new String[]{
-                "PATH=" + StringUtils.join(path.iterator(), ":"),
-                "HOME=" + pluginHome.getAbsolutePath()
-        };
+        return pluginHome;
     }
 
     //-------------------------------------------------------------------------
@@ -175,6 +173,14 @@ public abstract class AbstractNativeProgram implements NativeProgram {
     //-------------------------------------------------------------------------
 
     protected abstract List<String> updateArguments(List<String> arguments);
+
+    protected String[] getEnvironment()
+    {
+        return new String[]{
+                "PATH=" + StringUtils.join(path.iterator(), ":"),
+                "HOME=" + pluginHome.getAbsolutePath()
+        };
+    }
 
     protected int processExecution(Process process, Logger outputLogger) throws NativeProgramException
     {
