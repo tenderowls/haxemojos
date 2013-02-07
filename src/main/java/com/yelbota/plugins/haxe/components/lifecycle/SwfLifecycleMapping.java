@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yelbota.plugins.haxe.utils;
+package com.yelbota.plugins.haxe.components.lifecycle;
 
-public class HaxeFileExtensions {
+import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
+import org.apache.maven.lifecycle.mapping.LifecycleMapping;
+import org.codehaus.plexus.component.annotations.Component;
 
-    public static final String HAXELIB = "haxelib";
-    public static final String JAR = "jar";
-    public static final String HAR = "har";
-    public static final String NEKO = "n";
-    public static final String SWF = "swf";
+@Component( role = LifecycleMapping.class, hint = HaxeFileExtensions.SWF )
+public class SwfLifecycleMapping extends AbstractHaxeLifecycleMapping implements LifecycleMapping
+{
+    public String getCompiler()
+    {
+        return "com.yelbota.plugins:haxe-maven-plugin:compileSwf";
+    }
 }

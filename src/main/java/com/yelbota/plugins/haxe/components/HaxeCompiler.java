@@ -134,6 +134,10 @@ public final class HaxeCompiler {
                 args.add("-neko");
                 break;
             }
+            case swf: {
+                args.add("-swf");
+                break;
+            }
         }
     }
 

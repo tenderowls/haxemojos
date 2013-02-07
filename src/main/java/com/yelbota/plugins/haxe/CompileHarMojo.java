@@ -36,7 +36,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-
 /**
  * Builds a `har` package. This is a zip archive which
  * contains metainfo about supported compilation targets.
@@ -50,6 +49,18 @@ public class CompileHarMojo extends AbstractHaxeMojo {
      */
     @Parameter(required = true)
     private Set<CompileTarget> targets;
+
+    /**
+     * More type strict flash API
+     */
+    @Parameter
+    private boolean flashStrict;
+
+    /**
+     * Change the SWF version (6 to 11.x)
+     */
+    @Parameter(defaultValue = "11.2", required = true)
+    private String swfVersion;
 
     @Component
     protected HaxeCompiler compiler;
@@ -125,15 +136,31 @@ public class CompileHarMojo extends AbstractHaxeMojo {
                     outputFile = new File(outputBase, "neko.n");
                     break;
                 }
+                case swf:
+                {
+                    outputFile = new File(outputBase, "flash.swf");
+                    break;
+                }
             }
 
             compileTargets.put(target, outputFile.getAbsolutePath());
         }
 
+        List<String> additionalArgs = new LinkedList<String>();
+
+        // Add flash args
+        if (targets.contains(CompileTarget.swf))
+        {
+            if (flashStrict)
+                additionalArgs.add("-flash-strict");
+
+            additionalArgs.add("-swf-version");
+            additionalArgs.add(swfVersion);
+        }
+
         // Create macro command which add all classes
         // from compile classpath to haxe compiler.
         String sourcePaths = StringUtils.join(project.getCompileSourceRoots().iterator(), "','");
-        List<String> additionalArgs = new LinkedList<String>();
         additionalArgs.add("--macro");
         additionalArgs.add("haxe.macro.Compiler.include('', true, [], [ '" + sourcePaths + "' ])");
 

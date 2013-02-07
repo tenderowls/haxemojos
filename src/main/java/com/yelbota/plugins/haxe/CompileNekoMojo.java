@@ -18,6 +18,7 @@ package com.yelbota.plugins.haxe;
 import com.yelbota.plugins.haxe.components.HaxeCompiler;
 import com.yelbota.plugins.haxe.utils.ArtifactFilterHelper;
 import com.yelbota.plugins.haxe.utils.CompileTarget;
+import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -41,13 +42,13 @@ public class CompileNekoMojo extends AbstractCompileMojo {
     {
         super.execute();
 
-        File output = new File(outputDirectory, project.getBuild().getFinalName() + ".n");
+        File output = new File(outputDirectory, project.getBuild().getFinalName() + "." + HaxeFileExtensions.NEKO);
 
         if (output.exists())
             output.delete();
 
         EnumMap<CompileTarget, String> targets = new EnumMap<CompileTarget, String>(CompileTarget.class);
-        targets.put(CompileTarget.neko, output.getName());
+        targets.put(CompileTarget.neko, output.getAbsolutePath());
 
         try
         {

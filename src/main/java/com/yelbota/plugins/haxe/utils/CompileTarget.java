@@ -16,5 +16,5 @@
 package com.yelbota.plugins.haxe.utils;
 
 public enum CompileTarget {
-    java, neko;
+    java, neko, swf;
 }
