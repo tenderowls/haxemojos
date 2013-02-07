@@ -42,7 +42,6 @@ public abstract class AbstractCompileMojo extends AbstractHaxeMojo {
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         super.execute();
-
         compiler.setOutputDirectory(outputDirectory);
     }
 }

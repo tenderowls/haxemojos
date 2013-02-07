@@ -15,6 +15,7 @@
  */
 package com.yelbota.plugins.haxe;
 
+import com.yelbota.plugins.haxe.utils.ArtifactFilterHelper;
 import com.yelbota.plugins.haxe.utils.CompileTarget;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -48,7 +49,7 @@ public class CompileJavaMojo extends AbstractCompileMojo {
 
         try
         {
-            compiler.compile(project, targets, main, debug, false);
+            compiler.compile(project, targets, main, debug, false, ArtifactFilterHelper.COMPILE);
         }
         catch (Exception e)
         {

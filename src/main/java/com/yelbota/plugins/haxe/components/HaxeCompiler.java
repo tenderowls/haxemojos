@@ -21,6 +21,7 @@ import com.yelbota.plugins.haxe.utils.CompilerLogger;
 import com.yelbota.plugins.haxe.utils.HarMetadata;
 import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.codehaus.plexus.component.annotations.Component;
@@ -30,7 +31,10 @@ import org.codehaus.plexus.logging.Logger;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Component(role = HaxeCompiler.class)
 public final class HaxeCompiler {
@@ -48,7 +52,12 @@ public final class HaxeCompiler {
         compile(project, targets, main, debug, includeTestSources, null);
     }
 
-    public void compile(MavenProject project, Map<CompileTarget, String> targets, String main, boolean debug, boolean includeTestSources, List<String> additionalArguments) throws Exception
+    public void compile(MavenProject project, Map<CompileTarget, String> targets, String main, boolean debug, boolean includeTestSources, ArtifactFilter artifactFilter) throws Exception
+    {
+        compile(project, targets, main, debug, includeTestSources, artifactFilter, null);
+    }
+
+    public void compile(MavenProject project, Map<CompileTarget, String> targets, String main, boolean debug, boolean includeTestSources, ArtifactFilter artifactFilter, List<String> additionalArguments) throws Exception
     {
         List<String> args = new ArrayList<String>();
 
@@ -62,8 +71,8 @@ public final class HaxeCompiler {
             }
         }
 
-        addLibs(args, project);
-        addHars(args, project, targets.keySet());
+        addLibs(args, project, artifactFilter);
+        addHars(args, project, targets.keySet(), artifactFilter);
         addMain(args, main);
         addDebug(args, debug);
 
@@ -96,11 +105,13 @@ public final class HaxeCompiler {
         }
     }
 
-    private void addLibs(List<String> argumentsList, MavenProject project)
+    private void addLibs(List<String> argumentsList, MavenProject project, ArtifactFilter artifactFilter)
     {
         for (Artifact artifact : project.getArtifacts())
         {
-            if (artifact.getType().equals(HaxeFileExtensions.HAXELIB))
+            boolean filtered = artifactFilter != null && !artifactFilter.include(artifact);
+
+            if (!filtered && artifact.getType().equals(HaxeFileExtensions.HAXELIB))
             {
                 String haxelibId = artifact.getArtifactId() + ":" + artifact.getVersion();
                 argumentsList.add("-lib");
@@ -130,7 +141,7 @@ public final class HaxeCompiler {
             argumentsList.add("-debug");
     }
 
-    private void addHars(List<String> argumentsList, MavenProject project, Set<CompileTarget> targets)
+    private void addHars(List<String> argumentsList, MavenProject project, Set<CompileTarget> targets, ArtifactFilter artifactFilter)
     {
         File dependenciesDirectory = new File(outputDirectory, "dependencies");
 
@@ -139,7 +150,9 @@ public final class HaxeCompiler {
 
         for (Artifact artifact: project.getArtifacts())
         {
-            if (artifact.getType().equals(HaxeFileExtensions.HAR))
+            boolean filtered = artifactFilter != null && !artifactFilter.include(artifact);
+
+            if (!filtered && artifact.getType().equals(HaxeFileExtensions.HAR))
             {
                 File harUnpackDirectory = new File(dependenciesDirectory, artifact.getArtifactId());
 

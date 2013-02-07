@@ -15,6 +15,7 @@
  */
 package com.yelbota.plugins.haxe;
 
+import com.yelbota.plugins.haxe.utils.ArtifactFilterHelper;
 import com.yelbota.plugins.haxe.utils.CompileTarget;
 import com.yelbota.plugins.haxe.utils.HarMetadata;
 import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
@@ -124,6 +125,6 @@ public class CompileHarMojo extends AbstractCompileMojo {
             compileTargets.put(target, outputFile.getAbsolutePath());
         }
 
-        compiler.compile(project, compileTargets, main, debug, false);
+        compiler.compile(project, compileTargets, main, debug, false, ArtifactFilterHelper.COMPILE);
     }
 }
