@@ -15,17 +15,16 @@
  */
 package com.yelbota.plugins.haxe;
 
+import com.yelbota.plugins.haxe.components.HaxeCompiler;
 import com.yelbota.plugins.haxe.utils.ArtifactFilterHelper;
 import com.yelbota.plugins.haxe.utils.CompileTarget;
 import com.yelbota.plugins.haxe.utils.HarMetadata;
 import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.plugins.annotations.*;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
+import org.codehaus.plexus.util.StringUtils;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -33,6 +32,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.EnumMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 
@@ -41,7 +42,7 @@ import java.util.Set;
  * contains metainfo about supported compilation targets.
  */
 @Mojo(name = "compileHar", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
-public class CompileHarMojo extends AbstractCompileMojo {
+public class CompileHarMojo extends AbstractHaxeMojo {
 
     /**
      * Validation targets for `har`. HMP will try to build project with
@@ -50,10 +51,14 @@ public class CompileHarMojo extends AbstractCompileMojo {
     @Parameter(required = true)
     private Set<CompileTarget> targets;
 
+    @Component
+    protected HaxeCompiler compiler;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         super.execute();
+        compiler.setOutputDirectory(outputDirectory);
 
         try
         {
@@ -125,6 +130,18 @@ public class CompileHarMojo extends AbstractCompileMojo {
             compileTargets.put(target, outputFile.getAbsolutePath());
         }
 
-        compiler.compile(project, compileTargets, main, debug, false, ArtifactFilterHelper.COMPILE);
+        // Create macro command which add all classes
+        // from compile classpath to haxe compiler.
+        String sourcePaths = StringUtils.join(project.getCompileSourceRoots().iterator(), "','");
+        List<String> additionalArgs = new LinkedList<String>();
+        additionalArgs.add("--macro");
+        additionalArgs.add("haxe.macro.Compiler.include('', true, [], [ '" + sourcePaths + "' ])");
+
+        getLog().info(String.format(
+                "Validating targets: %s",
+                StringUtils.join(compileTargets.keySet().iterator(), ", ")
+        ));
+
+        compiler.compile(project, compileTargets, null, false, false, ArtifactFilterHelper.COMPILE, additionalArgs);
     }
 }

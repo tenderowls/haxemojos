@@ -73,8 +73,10 @@ public final class HaxeCompiler {
 
         addLibs(args, project, artifactFilter);
         addHars(args, project, targets.keySet(), artifactFilter);
-        addMain(args, main);
         addDebug(args, debug);
+
+        if (main != null)
+            addMain(args, main);
 
         if (additionalArguments != null)
             args.addAll(additionalArguments);
