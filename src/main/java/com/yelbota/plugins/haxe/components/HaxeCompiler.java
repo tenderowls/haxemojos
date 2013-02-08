@@ -16,10 +16,7 @@
 package com.yelbota.plugins.haxe.components;
 
 import com.yelbota.plugins.haxe.components.nativeProgram.NativeProgram;
-import com.yelbota.plugins.haxe.utils.CompileTarget;
-import com.yelbota.plugins.haxe.utils.CompilerLogger;
-import com.yelbota.plugins.haxe.utils.HarMetadata;
-import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
+import com.yelbota.plugins.haxe.utils.*;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.project.MavenProject;
@@ -107,6 +104,11 @@ public final class HaxeCompiler {
         }
     }
 
+    public void setOutputDirectory(File outputDirectory)
+    {
+        this.outputDirectory = outputDirectory;
+    }
+
     private void addLibs(List<String> argumentsList, MavenProject project, ArtifactFilter artifactFilter)
     {
         for (Artifact artifact : project.getArtifacts())
@@ -149,10 +151,7 @@ public final class HaxeCompiler {
 
     private void addHars(List<String> argumentsList, MavenProject project, Set<CompileTarget> targets, ArtifactFilter artifactFilter)
     {
-        File dependenciesDirectory = new File(outputDirectory, "dependencies");
-
-        if (!dependenciesDirectory.exists())
-            dependenciesDirectory.mkdir();
+        Map<String, MavenProject> projectReferences = project.getProjectReferences();
 
         for (Artifact artifact: project.getArtifacts())
         {
@@ -160,36 +159,82 @@ public final class HaxeCompiler {
 
             if (!filtered && artifact.getType().equals(HaxeFileExtensions.HAR))
             {
-                File harUnpackDirectory = new File(dependenciesDirectory, artifact.getArtifactId() + "-" + artifact.getVersion());
+                String artifactKey = getProjectReferenceKey(artifact, ":");
+                MavenProject reference = projectReferences.get(artifactKey);
 
-                if (!harUnpackDirectory.exists())
+                if (reference == null)
                 {
-                    harUnpackDirectory.mkdir();
-                    ZipUnArchiver unArchiver = new ZipUnArchiver();
-                    unArchiver.enableLogging(logger);
-                    unArchiver.setSourceFile(artifact.getFile());
-                    unArchiver.setDestDirectory(harUnpackDirectory);
-                    unArchiver.extract();
+                    File harUnpackDirectory = new File(getDependenciesDirectory(), getProjectReferenceKey(artifact, "-"));
+                    unpackHar(artifact, harUnpackDirectory);
+                    validateHarMetadata(targets, artifact, new File(harUnpackDirectory, HarMetadata.METADATA_FILE_NAME));
+                    addSourcePath(argumentsList, harUnpackDirectory.getAbsolutePath());
                 }
-
-                try
+                else
                 {
-                    File metadataFile = new File(harUnpackDirectory, HarMetadata.METADATA_FILE_NAME);
-                    JAXBContext jaxbContext = JAXBContext.newInstance(HarMetadata.class, CompileTarget.class);
-                    HarMetadata metadata = (HarMetadata) jaxbContext.createUnmarshaller().unmarshal(metadataFile);
+                    String dirName = OutputNamesHelper.getHarValidationOutput(artifact);
+                    File validationDirectory = new File(reference.getBuild().getDirectory(), dirName);
+                    validateHarMetadata(targets, artifact, new File(validationDirectory, HarMetadata.METADATA_FILE_NAME));
 
-                    if (!metadata.target.containsAll(targets))
-                        logger.warn("Dependency " + artifact + " is not compatible with your compile targets.");
+                    for (String cp : reference.getCompileSourceRoots()) {
+                        addSourcePath(argumentsList, cp);
+                    }
                 }
-                catch (JAXBException e)
-                {
-                    logger.warn("Can't read " + artifact + "metadata", e);
-                }
-
-                addSourcePath(argumentsList, harUnpackDirectory.getAbsolutePath());
             }
         }
     }
+
+    private File getDependenciesDirectory()
+    {
+        File dependenciesDirectory = new File(outputDirectory, "dependencies");
+
+        if (!dependenciesDirectory.exists())
+            dependenciesDirectory.mkdir();
+
+        return dependenciesDirectory;
+    }
+
+    private void validateHarMetadata(Set<CompileTarget> targets, Artifact artifact, File metadataFile)
+    {
+        try
+        {
+            JAXBContext jaxbContext = JAXBContext.newInstance(HarMetadata.class, CompileTarget.class);
+            HarMetadata metadata = (HarMetadata) jaxbContext.createUnmarshaller().unmarshal(metadataFile);
+
+            if (!metadata.target.containsAll(targets))
+                logger.warn("Dependency " + artifact + " is not compatible with your compile targets.");
+        }
+        catch (JAXBException e)
+        {
+            logger.warn("Can't read " + artifact + " metadata", e);
+        }
+
+    }
+
+    private void unpackHar(Artifact artifact, File harUnpackDirectory)
+    {
+        if (!harUnpackDirectory.exists())
+        {
+            harUnpackDirectory.mkdir();
+            ZipUnArchiver unArchiver = new ZipUnArchiver();
+            unArchiver.enableLogging(logger);
+            unArchiver.setSourceFile(artifact.getFile());
+            unArchiver.setDestDirectory(harUnpackDirectory);
+            unArchiver.extract();
+        }
+    }
+
+    private String getProjectReferenceKey(Artifact artifact, String separator)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(artifact.getGroupId());
+        sb.append(separator);
+        sb.append(artifact.getArtifactId());
+        sb.append(separator);
+        sb.append(artifact.getVersion());
+
+        return sb.toString();
+    }
+
 
     private void addMain(List<String> argumentsList, String main)
     {
@@ -201,10 +246,5 @@ public final class HaxeCompiler {
     {
         argumentsList.add("-cp");
         argumentsList.add(sourcePath);
-    }
-
-    public void setOutputDirectory(File outputDirectory)
-    {
-        this.outputDirectory = outputDirectory;
     }
 }

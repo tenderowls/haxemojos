@@ -15,6 +15,7 @@
  */
 package com.yelbota.plugins.haxe.utils;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
 
 public class OutputNamesHelper {
@@ -22,5 +23,15 @@ public class OutputNamesHelper {
     public static String getTestOutput(MavenProject project)
     {
         return project.getBuild().getFinalName() + "-test.n";
+    }
+
+    public static String getHarValidationOutput(Artifact artifact)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(artifact.getArtifactId());
+        sb.append("-");
+        sb.append(artifact.getVersion());
+        sb.append("-harValidate");
+        return sb.toString();
     }
 }

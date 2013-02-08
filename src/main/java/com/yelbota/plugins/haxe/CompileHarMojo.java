@@ -16,10 +16,7 @@
 package com.yelbota.plugins.haxe;
 
 import com.yelbota.plugins.haxe.components.HaxeCompiler;
-import com.yelbota.plugins.haxe.utils.ArtifactFilterHelper;
-import com.yelbota.plugins.haxe.utils.CompileTarget;
-import com.yelbota.plugins.haxe.utils.HarMetadata;
-import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
+import com.yelbota.plugins.haxe.utils.*;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.*;
@@ -73,7 +70,8 @@ public class CompileHarMojo extends AbstractHaxeMojo {
 
         try
         {
-            File outputBase = new File(outputDirectory, project.getBuild().getFinalName() + "-harValidate");
+            String outputDirectoryName = OutputNamesHelper.getHarValidationOutput(project.getArtifact());
+            File outputBase = new File(outputDirectory, outputDirectoryName);
             validateTargets(outputBase);
             File metadata = createHarMetadata(outputBase);
 
