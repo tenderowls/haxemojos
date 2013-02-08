@@ -160,7 +160,7 @@ public final class HaxeCompiler {
 
             if (!filtered && artifact.getType().equals(HaxeFileExtensions.HAR))
             {
-                File harUnpackDirectory = new File(dependenciesDirectory, artifact.getArtifactId());
+                File harUnpackDirectory = new File(dependenciesDirectory, artifact.getArtifactId() + "-" + artifact.getVersion());
 
                 if (!harUnpackDirectory.exists())
                 {

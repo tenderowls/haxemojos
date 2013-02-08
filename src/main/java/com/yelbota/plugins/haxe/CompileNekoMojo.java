@@ -15,27 +15,23 @@
  */
 package com.yelbota.plugins.haxe;
 
-import com.yelbota.plugins.haxe.components.HaxeCompiler;
 import com.yelbota.plugins.haxe.utils.ArtifactFilterHelper;
 import com.yelbota.plugins.haxe.utils.CompileTarget;
 import com.yelbota.plugins.haxe.utils.HaxeFileExtensions;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.io.File;
 import java.util.EnumMap;
 
-@Mojo(name = "compileNeko", defaultPhase = LifecyclePhase.COMPILE)
 /**
  * Compile in nekovm bytecode.
  */
+@Mojo(name = "compileNeko", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class CompileNekoMojo extends AbstractCompileMojo {
-
-    @Component
-    private HaxeCompiler compiler;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
