@@ -22,8 +22,21 @@ import com.yelbota.plugins.haxe.utils.OutputNamesHelper;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.*;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import org.apache.velocity.texen.util.FileUtil;
+import org.codehaus.plexus.util.FileUtils;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Compile tests with `neko` compile target.
@@ -32,7 +45,7 @@ import java.util.EnumMap;
 public class TestCompileMojo extends AbstractHaxeMojo {
 
     /**
-     * Test runner class.
+     * Test runner class. If is not defined then generated automatically.
      */
     @Parameter
     private String testRunner;
@@ -45,9 +58,15 @@ public class TestCompileMojo extends AbstractHaxeMojo {
     {
         super.execute();
 
-        if (testRunner == null || project.getTestCompileSourceRoots().size() == 0) {
+        if (project.getTestCompileSourceRoots().size() == 0)
+        {
             getLog().info("No test sources to compile");
             return;
+        }
+
+        if (testRunner == null)
+        {
+            testRunner = generateTestRunner();
         }
 
         String output = OutputNamesHelper.getTestOutput(project);
@@ -64,4 +83,92 @@ public class TestCompileMojo extends AbstractHaxeMojo {
             throw new MojoFailureException("Tests compilation failed", e);
         }
     }
+
+    private String generateTestRunner() throws MojoExecutionException
+    {
+        File testRunnerDir = new File(project.getBuild().getDirectory(), "testRunner");
+        testRunnerDir.mkdirs();
+        project.addTestCompileSourceRoot(testRunnerDir.getAbsolutePath());
+        File testRunnerFile = new File(testRunnerDir, "GeneratedTestRunner.hx");
+
+        Properties p = new Properties();
+
+        p.setProperty(VelocityEngine.VM_CONTEXT_LOCALSCOPE, Boolean.toString(true));
+        p.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");
+        p.setProperty("classpath."
+                      + VelocityEngine.RESOURCE_LOADER
+                      + ".class", ClasspathResourceLoader.class.getName());
+
+        Velocity.init(p);
+
+        try
+        {
+            FileWriter sw = new FileWriter(testRunnerFile);
+            File surefireDir = new File(project.getBuild().getDirectory(), "surefire-reports");
+            surefireDir.mkdir();
+
+            VelocityContext context = new VelocityContext();
+            context.put("surefireDir", surefireDir.getAbsolutePath());
+            context.put("cases", getTestClasses());
+
+            Velocity.mergeTemplate("/testReport.vm", "UTF8", context, sw);
+            sw.flush();
+            sw.close();
+        }
+        catch (Exception e)
+        {
+            throw new MojoExecutionException("Can't generate TestRunner", e);
+        }
+
+        return "GeneratedTestRunner";
+    }
+
+    private List<String> getTestClasses() throws IOException
+    {
+        ArrayList<String> result = new ArrayList<String>();
+
+        for (String testSourcesRootPath : project.getTestCompileSourceRoots())
+        {
+            File testSourcesRoot = new File(testSourcesRootPath);
+            URI rootURI = testSourcesRoot.toURI();
+            List<File> fileList = getFileList(testSourcesRoot);
+
+            for (File file : fileList)
+            {
+                URI fileURI = file.toURI();
+                fileURI = rootURI.relativize(fileURI);
+                String className = fileURI.toString()
+                        .replace(".hx", "")
+                        .replaceAll("/", ".");
+
+                result.add(className);
+            }
+        }
+
+        return result;
+    }
+
+    private List<File> getFileList(File root) throws IOException
+    {
+        ArrayList<File> result = new ArrayList<File>();
+
+        for (String fileName : root.list())
+        {
+            File file = new File(root, fileName);
+            if (file.isDirectory())
+            {
+                result.addAll(getFileList(file));
+            } else
+            {
+                // If file contains haxe.unit.TestCase in imports
+                // or inherits it then believe that it is test case.
+                if (FileUtils.fileRead(file).indexOf("haxe.unit.TestCase") > -1)
+                    result.add(file);
+            }
+        }
+
+        return result;
+    }
+
+
 }

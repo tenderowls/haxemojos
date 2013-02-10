@@ -1,0 +1,73 @@
+package;
+
+class GeneratedTestRunner extends haxe.unit.TestRunner
+{
+    public static function main()
+    {
+        var runner = new GeneratedTestRunner();
+        #foreach( $case in $cases )
+            runner.add(new $case());
+        #end
+        runner.run();
+    }
+
+    override public function run():Bool
+    {
+        var _result = new TestResult();
+        var errors = 0;
+        var failures = 0;
+
+        result = _result;
+
+        for (c in cases)
+        {
+            runCase(c);
+
+            var caseName = Type.getClassName(Type.getClass(c));
+            var tests = _result.getTests();
+            var buff = new StringBuf();
+            var caseBuff = new StringBuf();
+
+            var caseErrors = 0;
+            var caseFailures = 0;
+
+            for (t in tests)
+            {
+                caseBuff.add('<testcase name="' + t.method + '" time="0">');
+                if (t.error != null)
+                {
+                    caseBuff.add('<error message="' + t.error + '">');
+                    caseErrors++;
+                    errors++;
+                }
+                else if (t.backtrace != null)
+                {
+                    caseBuff.add('<failure message="' + t.backtrace + '" type=""/>');
+                    caseFailures++;
+                    failures++;
+                }
+                caseBuff.add('</testcase>');
+            }
+
+            buff.add('<testsuite errors="' + errors + '" failures="' + failures + '" name="' + caseName + '" tests ="' +
+                     tests.length + '" time="0" >');
+            buff.add(caseBuff);
+            buff.add('</testsuite>');
+
+            sys.io.File.saveContent("$surefireDir/TEST-" + caseName + ".xml", buff.toString());
+        }
+
+        haxe.unit.TestRunner.print(result.toString());
+        Sys.exit(failures > 0 || errors > 0 ? 1 : 0);
+        return result.success;
+    }
+
+}
+
+class TestResult extends haxe.unit.TestResult
+{
+    public function getTests():List<haxe.unit.TestStatus>
+    {
+        return m_tests;
+    }
+}
