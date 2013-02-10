@@ -49,7 +49,8 @@ public class CompileJavaMojo extends AbstractCompileMojo {
 
         try
         {
-            compiler.compile(project, targets, main, debug, false, ArtifactFilterHelper.COMPILE);
+            compiler.compile(project, targets, main, debug, false,
+                    ArtifactFilterHelper.COMPILE, getCommonAdditionalArgs());
         }
         catch (Exception e)
         {

@@ -161,6 +161,7 @@ public class CompileHarMojo extends AbstractHaxeMojo {
         String sourcePaths = StringUtils.join(project.getCompileSourceRoots().iterator(), "','");
         additionalArgs.add("--macro");
         additionalArgs.add("haxe.macro.Compiler.include('', true, [], [ '" + sourcePaths + "' ])");
+        additionalArgs.addAll(getCommonAdditionalArgs());
 
         getLog().info(String.format(
                 "Validating targets: %s",

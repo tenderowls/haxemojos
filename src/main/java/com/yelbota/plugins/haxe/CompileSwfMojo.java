@@ -76,6 +76,7 @@ public class CompileSwfMojo extends AbstractCompileMojo {
         try
         {
             List<String> additionalArgs = getFlashAdditionalArguments();
+            additionalArgs.addAll(getCommonAdditionalArgs());
             compiler.compile(project, targets, main, debug, false, ArtifactFilterHelper.COMPILE, additionalArgs);
         }
         catch (Exception e)

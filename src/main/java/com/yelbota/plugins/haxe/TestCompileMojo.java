@@ -56,7 +56,8 @@ public class TestCompileMojo extends AbstractHaxeMojo {
 
         try
         {
-            compiler.compile(project, targets, testRunner, true, true, ArtifactFilterHelper.TEST);
+            compiler.compile(project, targets, testRunner, true, true,
+                    ArtifactFilterHelper.TEST, getCommonAdditionalArgs());
         }
         catch (Exception e)
         {
