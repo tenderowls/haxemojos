@@ -15,10 +15,6 @@
  */
 package org.haxe.maven;
 
-import org.haxe.maven.components.HaxeCompiler;
-import org.haxe.maven.utils.ArtifactFilterHelper;
-import org.haxe.maven.utils.CompileTarget;
-import org.haxe.maven.utils.OutputNamesHelper;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.*;
@@ -26,8 +22,11 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
-import org.apache.velocity.texen.util.FileUtil;
 import org.codehaus.plexus.util.FileUtils;
+import org.haxe.maven.components.HaxeCompiler;
+import org.haxe.maven.utils.ArtifactFilterHelper;
+import org.haxe.maven.utils.CompileTarget;
+import org.haxe.maven.utils.OutputNamesHelper;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -58,16 +57,14 @@ public class TestCompileMojo extends AbstractHaxeMojo {
     {
         super.execute();
 
-        if (project.getTestCompileSourceRoots().size() == 0)
+        if (!getNeedRunTests())
         {
             getLog().info("No test sources to compile");
             return;
         }
 
         if (testRunner == null)
-        {
             testRunner = generateTestRunner();
-        }
 
         String output = OutputNamesHelper.getTestOutput(project);
         EnumMap<CompileTarget, String> targets = new EnumMap<CompileTarget, String>(CompileTarget.class);
@@ -82,6 +79,18 @@ public class TestCompileMojo extends AbstractHaxeMojo {
         {
             throw new MojoFailureException("Tests compilation failed", e);
         }
+    }
+
+    private boolean getNeedRunTests()
+    {
+        for (String testSourcesRootPath : project.getTestCompileSourceRoots())
+        {
+            File file = new File(testSourcesRootPath);
+            if (file.exists())
+                return true;
+        }
+
+        return false;
     }
 
     private String generateTestRunner() throws MojoExecutionException
