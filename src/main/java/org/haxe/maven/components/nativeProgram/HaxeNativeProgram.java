@@ -34,5 +34,14 @@ public final class HaxeNativeProgram extends AbstractNativeProgram {
 
         return list;
     }
+
+    @Override
+    protected List<String> getEnvironment()
+    {
+        List<String> env = super.getEnvironment();
+        File std = new File(directory, "std");
+        env.add("HAXE_LIBRARY_PATH=" + std.getAbsolutePath());
+        return env;
+    }
 }
 

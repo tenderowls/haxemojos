@@ -125,6 +125,7 @@ public class NativeBootstrap {
     {
         Map<String, Artifact> artifactsMap = new HashMap<String, Artifact>();
         Set<String> path = new HashSet<String>();
+        Map<String, String> env = new HashMap<String, String>();
         File outputDirectory = getOutputDirectory();
 
         // Add java to PATH
@@ -159,9 +160,9 @@ public class NativeBootstrap {
                     NEKO_KEY));
         }
 
-        haxe.initialize(artifactsMap.get(HAXE_COMPILER_KEY), outputDirectory, pluginHome, path);
-        haxelib.initialize(artifactsMap.get(HAXE_COMPILER_KEY), outputDirectory, pluginHome, path);
-        neko.initialize(artifactsMap.get(NEKO_KEY), outputDirectory, pluginHome, path);
+        haxe.initialize(artifactsMap.get(HAXE_COMPILER_KEY), outputDirectory, pluginHome, path, env);
+        haxelib.initialize(artifactsMap.get(HAXE_COMPILER_KEY), outputDirectory, pluginHome, path, env);
+        neko.initialize(artifactsMap.get(NEKO_KEY), outputDirectory, pluginHome, path, env);
     }
 
     @NotNull

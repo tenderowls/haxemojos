@@ -15,14 +15,24 @@
  */
 package org.haxe.maven.components.nativeProgram;
 
+import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.component.annotations.Component;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Component(role = NativeProgram.class, hint = "neko")
 public final class NekoNativeProgram extends AbstractNativeProgram {
+
+    @Override
+    public void initialize(Artifact artifact, File outputDirectory, File pluginHome, Set<String> path, Map<String, String> env)
+    {
+        super.initialize(artifact, outputDirectory, pluginHome, path, env);
+        env.put("NEKOPATH", directory.getAbsolutePath());
+    }
 
     @Override
     protected List<String> updateArguments(List<String> arguments)

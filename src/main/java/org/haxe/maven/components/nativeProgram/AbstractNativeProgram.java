@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -62,6 +63,8 @@ public abstract class AbstractNativeProgram implements NativeProgram {
 
     protected Set<String> path;
 
+    protected Map<String, String> env;
+
     protected File directory;
 
     private boolean initialized = false;
@@ -72,7 +75,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
     //
     //-------------------------------------------------------------------------
 
-    public void initialize(Artifact artifact, File outputDirectory, File pluginHome, Set<String> path)
+    public void initialize(Artifact artifact, File outputDirectory, File pluginHome, Set<String> path, Map<String, String> env)
     {
         if (initialized)
             return;
@@ -81,6 +84,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
         this.outputDirectory = outputDirectory;
         this.pluginHome = pluginHome;
         this.path = path;
+        this.env = env;
 
         try
         {
@@ -103,7 +107,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
     {
         try
         {
-            String[] environment = getEnvironment();
+            String[] environment = getEnvironment().toArray(new String[]{});
             arguments = updateArguments(arguments);
             logger.debug("Executing: " + StringUtils.join(arguments.iterator(), " "));
 
@@ -174,12 +178,16 @@ public abstract class AbstractNativeProgram implements NativeProgram {
 
     protected abstract List<String> updateArguments(List<String> arguments);
 
-    protected String[] getEnvironment()
+    protected List<String> getEnvironment()
     {
-        return new String[]{
-                "PATH=" + StringUtils.join(path.iterator(), ":"),
-                "HOME=" + pluginHome.getAbsolutePath()
-        };
+        ArrayList<String> result = new ArrayList<String>();
+        result.add("PATH=" + StringUtils.join(path.iterator(), ":"));
+        result.add("HOME=" + pluginHome.getAbsolutePath());
+
+        for (String evnKey: env.keySet()) {
+            result.add(evnKey + "=" + env.get(evnKey));
+        }
+        return result;
     }
 
     protected int processExecution(Process process, Logger outputLogger) throws NativeProgramException

@@ -20,11 +20,12 @@ import org.codehaus.plexus.logging.Logger;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface NativeProgram {
 
-    void initialize(Artifact artifact, File outputDirectory, File pluginHome, Set<String> path);
+    void initialize(Artifact artifact, File outputDirectory, File pluginHome, Set<String> path, Map<String, String> env);
 
     int execute(List<String> arguments) throws NativeProgramException;
 
