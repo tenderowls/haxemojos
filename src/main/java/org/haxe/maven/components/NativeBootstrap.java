@@ -15,7 +15,6 @@
  */
 package org.haxe.maven.components;
 
-import com.sun.istack.internal.NotNull;
 import org.haxe.maven.components.nativeProgram.NativeProgram;
 import org.haxe.maven.components.nativeProgram.NativeProgramException;
 import org.apache.maven.artifact.Artifact;
@@ -165,7 +164,6 @@ public class NativeBootstrap {
         neko.initialize(artifactsMap.get(NEKO_KEY), outputDirectory, pluginHome, path, env);
     }
 
-    @NotNull
     private File getOutputDirectory()
     {
         File outputDirectory = new File(project.getBuild().getDirectory());
@@ -181,7 +179,6 @@ public class NativeBootstrap {
         return outputDirectory;
     }
 
-    @NotNull
     private String getSDKArtifactPackaging(String classifier)
     {
         if (classifier.equals(OS_CLASSIFIER_WINDOWS))
@@ -193,7 +190,6 @@ public class NativeBootstrap {
         }
     }
 
-    @NotNull
     private String getDefaultClassifier() throws Exception
     {
         String systemName = System.getProperty("os.name");
@@ -219,7 +215,6 @@ public class NativeBootstrap {
         }
     }
 
-    @NotNull
     private Artifact resolveArtifact(Artifact artifact) throws Exception
     {
         ArtifactResolutionRequest request = new ArtifactResolutionRequest();
