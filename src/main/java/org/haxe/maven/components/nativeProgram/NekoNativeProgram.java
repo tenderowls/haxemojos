@@ -27,10 +27,15 @@ import java.util.Set;
 @Component(role = NativeProgram.class, hint = "neko")
 public final class NekoNativeProgram extends AbstractNativeProgram {
 
+    private static final String LD_LIBRARY_PATH = "LD_LIBRARY_PATH";
+
     @Override
     public void initialize(Artifact artifact, File outputDirectory, File pluginHome, Set<String> path, Map<String, String> env)
     {
         super.initialize(artifact, outputDirectory, pluginHome, path, env);
+	String ld = env.get(LD_LIBRARY_PATH);
+	ld = (ld != null) ? ld + ":" + directory.getAbsolutePath() : directory.getAbsolutePath();
+        env.put(LD_LIBRARY_PATH, ld);
         env.put("NEKOPATH", directory.getAbsolutePath());
     }
 
