@@ -87,7 +87,7 @@ public final class HaxeCompiler {
             argsClone.add(output);
 
             CompilerLogger compilerLogger = new CompilerLogger(logger);
-            haxe.execute(argsClone, compilerLogger);
+            int returnCode = haxe.execute(argsClone, compilerLogger);
 
             if (compilerLogger.getErrors().size() > 0)
             {
@@ -100,6 +100,10 @@ public final class HaxeCompiler {
                 }
 
                 throw new Exception("Compilation failure");
+            }
+            else if (returnCode > 0)
+            {
+	        throw new Exception("Compilation failure");
             }
         }
     }

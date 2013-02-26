@@ -158,7 +158,10 @@ public class CompileHarMojo extends AbstractHaxeMojo {
 
         // Create macro command which add all classes
         // from compile classpath to haxe compiler.
-        String sourcePaths = StringUtils.join(project.getCompileSourceRoots().iterator(), "','");
+        String sourcePaths = StringUtils
+		.join(project.getCompileSourceRoots().iterator(), "','")
+		.replace("\\", "\\\\");
+
         additionalArgs.add("--macro");
         additionalArgs.add("haxe.macro.Compiler.include('', true, [], [ '" + sourcePaths + "' ])");
         additionalArgs.addAll(getCommonAdditionalArgs());

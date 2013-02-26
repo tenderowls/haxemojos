@@ -54,7 +54,7 @@ class GeneratedTestRunner extends haxe.unit.TestRunner
             buff.add(caseBuff);
             buff.add('</testsuite>');
 
-            sys.io.File.saveContent("$surefireDir/TEST-" + caseName + ".xml", buff.toString());
+            sys.io.File.saveContent("$surefireDir"+"TEST-" + caseName + ".xml", buff.toString());
         }
 
         haxe.unit.TestRunner.print(result.toString());

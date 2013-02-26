@@ -107,8 +107,17 @@ public abstract class AbstractNativeProgram implements NativeProgram {
     {
         try
         {
-            String[] environment = getEnvironment().toArray(new String[]{});
+            List<String> environmentList = getEnvironment();
+            String[] environment = environmentList.toArray(new String[]{});
             arguments = updateArguments(arguments);
+
+            if (isWindows())
+	    {
+	         arguments.add(0, "/C");
+	         arguments.add(0, "cmd");
+	    }
+
+	    logger.debug("Evironment: " +  StringUtils.join(environmentList.iterator(), "\n"));
             logger.debug("Executing: " + StringUtils.join(arguments.iterator(), " "));
 
             Process process = Runtime.getRuntime().exec(
@@ -181,7 +190,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
     protected List<String> getEnvironment()
     {
         ArrayList<String> result = new ArrayList<String>();
-        result.add("PATH=" + StringUtils.join(path.iterator(), ":"));
+        result.add("PATH=" + StringUtils.join(path.iterator(), File.pathSeparator));
         result.add("HOME=" + pluginHome.getAbsolutePath());
 
         for (String evnKey: env.keySet()) {

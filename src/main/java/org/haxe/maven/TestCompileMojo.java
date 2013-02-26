@@ -117,8 +117,12 @@ public class TestCompileMojo extends AbstractHaxeMojo {
             surefireDir.mkdir();
 
             VelocityContext context = new VelocityContext();
-            context.put("surefireDir", surefireDir.getAbsolutePath());
-            context.put("cases", getTestClasses());
+	    context.put("cases", getTestClasses());
+            context.put("surefireDir", (surefireDir
+                .getAbsolutePath()
+                +File.separator)
+                .replace("\\", "\\\\")
+            );
 
             Velocity.mergeTemplate("/testReport.vm", "UTF8", context, sw);
             sw.flush();
