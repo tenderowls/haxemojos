@@ -28,14 +28,22 @@ import java.util.Set;
 public final class NekoNativeProgram extends AbstractNativeProgram {
 
     private static final String LD_LIBRARY_PATH = "LD_LIBRARY_PATH";
+    private static final String DYLD_LIBRARY_PATH = "DYLD_LIBRARY_PATH";
 
     @Override
     public void initialize(Artifact artifact, File outputDirectory, File pluginHome, Set<String> path, Map<String, String> env)
     {
         super.initialize(artifact, outputDirectory, pluginHome, path, env);
-	String ld = env.get(LD_LIBRARY_PATH);
-	ld = (ld != null) ? ld + ":" + directory.getAbsolutePath() : directory.getAbsolutePath();
-        env.put(LD_LIBRARY_PATH, ld);
+
+        if (!isWindows())
+        {
+            // Using LD_LIBRARY_PATH in Linux and DYLD_LIBRARY_PATH in OSX
+            String ldName = isUnix() ? LD_LIBRARY_PATH : DYLD_LIBRARY_PATH;
+            String ld = env.get(ldName);
+            ld = (ld != null) ? ld + ":" + directory.getAbsolutePath() : directory.getAbsolutePath();
+            env.put(ldName, ld);
+        }
+
         env.put("NEKOPATH", directory.getAbsolutePath());
     }
 

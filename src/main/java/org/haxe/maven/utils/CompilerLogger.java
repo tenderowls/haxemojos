@@ -140,15 +140,18 @@ public class CompilerLogger implements Logger {
     private void parse(String s)
     {
         String sLower = s.toLowerCase();
-        if (sLower.matches("^.*:[0-9]*:.* [0-9]*-[0-9]*.*"))
-        {
-            // TODO convert to Java compiler style
-            errors.add(s);
-        } else if (sLower.indexOf("warning:") > -1)
+
+        if (sLower.indexOf("warning :") > -1 || sLower.indexOf("warning:") > -1)
         {
             warnings.add(s);
             baseLogger.warn(s);
-        } else
+        }
+        else if (sLower.matches("^.*:[0-9]*:.* [0-9]*-[0-9]*.*"))
+        {
+            // TODO convert to Java compiler style
+            errors.add(s);
+        }
+        else
         {
             baseLogger.info(s);
         }

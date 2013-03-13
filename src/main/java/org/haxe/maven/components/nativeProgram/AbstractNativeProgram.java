@@ -17,12 +17,12 @@ package org.haxe.maven.components.nativeProgram;
 
 import com.yelbota.plugins.nd.UnpackHelper;
 import com.yelbota.plugins.nd.utils.DefaultUnpackMethods;
-import org.haxe.maven.utils.CleanStream;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.StringUtils;
+import org.haxe.maven.utils.CleanStream;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +36,8 @@ import java.util.Set;
  * simple executor arguments
  */
 public abstract class AbstractNativeProgram implements NativeProgram {
+
+    final String OS = System.getProperty("os.name").toLowerCase();
 
     //-------------------------------------------------------------------------
     //
@@ -112,12 +114,12 @@ public abstract class AbstractNativeProgram implements NativeProgram {
             arguments = updateArguments(arguments);
 
             if (isWindows())
-	    {
-	         arguments.add(0, "/C");
-	         arguments.add(0, "cmd");
-	    }
+            {
+                arguments.add(0, "/C");
+                arguments.add(0, "cmd");
+            }
 
-	    logger.debug("Evironment: " +  StringUtils.join(environmentList.iterator(), "\n"));
+            logger.debug("Evironment: " + StringUtils.join(environmentList.iterator(), "\n"));
             logger.debug("Executing: " + StringUtils.join(arguments.iterator(), " "));
 
             Process process = Runtime.getRuntime().exec(
@@ -193,7 +195,8 @@ public abstract class AbstractNativeProgram implements NativeProgram {
         result.add("PATH=" + StringUtils.join(path.iterator(), File.pathSeparator));
         result.add("HOME=" + pluginHome.getAbsolutePath());
 
-        for (String evnKey: env.keySet()) {
+        for (String evnKey : env.keySet())
+        {
             result.add(evnKey + "=" + env.get(evnKey));
         }
         return result;
@@ -235,7 +238,8 @@ public abstract class AbstractNativeProgram implements NativeProgram {
             if (tmpDir.exists())
                 tmpDir.delete();
 
-            UnpackHelper unpackHelper = new UnpackHelper() {};
+            UnpackHelper unpackHelper = new UnpackHelper() {
+            };
             DefaultUnpackMethods unpackMethods = new DefaultUnpackMethods(logger);
             unpackHelper.unpack(tmpDir, artifact, unpackMethods, null);
 
@@ -255,9 +259,15 @@ public abstract class AbstractNativeProgram implements NativeProgram {
 
     protected boolean isWindows()
     {
-        String systemName = System.getProperty("os.name");
-        String preparedName = systemName.toLowerCase();
-
-        return preparedName.indexOf("win") > -1;
+        return OS.indexOf("win") > -1;
     }
+
+    protected boolean isUnix()
+    {
+        return (OS.indexOf("nix") > -1 ||
+                OS.indexOf("nux") > -1 ||
+                OS.indexOf("aix") > -1);
+    }
+
+
 }
