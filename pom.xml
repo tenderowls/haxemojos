@@ -3,10 +3,10 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.haxe.maven</groupId>
-    <artifactId>haxe-maven-plugin</artifactId>
+    <groupId>com.tenderowls.opensource</groupId>
+    <artifactId>haxemojos-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-alpha-1</version>
 
     <name>Maven plugin to build haXe projects</name>
 
@@ -74,7 +74,7 @@
                 <version>3.2</version>
                 <configuration>
                     <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-                    <goalPrefix>haxe</goalPrefix>
+                    <goalPrefix>haxemojos</goalPrefix>
                 </configuration>
                 <executions>
                     <execution>
@@ -156,14 +156,14 @@
         <repository>
             <!-- I know, I know! -->
             <id>yelbota-dropbox-repository</id>
-            <url>file:///Users/yelbota/Dropbox/Public/maven</url>
+            <url>file:///Users/fomkin/Dropbox/Public/maven</url>
         </repository>
     </distributionManagement>
 
     <scm>
-        <url>https://github.com/yelbota/haxe-maven-plugin</url>
-        <developerConnection>scm:git:github.com/yelbota/haxe-maven-plugin.git</developerConnection>
-        <connection>scm:git:github.com/yelbota/haxe-maven-plugin.git</connection>
+        <url>https://github.com/tenderowls/haxemojos</url>
+        <developerConnection>scm:git:github.com/tenderowls/haxemojos.git</developerConnection>
+        <connection>scm:git:github.com/tenderowls/haxemojos.git</connection>
     </scm>
 
     <properties>
