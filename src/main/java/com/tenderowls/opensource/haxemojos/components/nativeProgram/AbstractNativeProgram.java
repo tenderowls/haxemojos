@@ -234,8 +234,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
             if (tmpDir.exists())
                 tmpDir.delete();
 
-            UnpackHelper unpackHelper = new UnpackHelper() {
-            };
+            UnpackHelper unpackHelper = new UnpackHelper();
             DefaultUnpackMethods unpackMethods = new DefaultUnpackMethods(logger);
             unpackHelper.unpack(tmpDir, artifact, unpackMethods, null);
 
