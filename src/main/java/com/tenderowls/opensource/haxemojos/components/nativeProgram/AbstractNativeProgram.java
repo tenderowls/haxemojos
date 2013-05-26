@@ -26,10 +26,7 @@ import com.tenderowls.opensource.haxemojos.utils.CleanStream;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents package on native application (or group on applications) as
@@ -145,8 +142,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
     {
         List<String> list = new ArrayList<String>();
 
-        for (String arg : arguments)
-            list.add(arg);
+        Collections.addAll(list, arguments);
 
         return execute(list);
     }
