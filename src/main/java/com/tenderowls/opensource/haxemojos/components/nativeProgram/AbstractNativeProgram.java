@@ -259,14 +259,14 @@ public abstract class AbstractNativeProgram implements NativeProgram {
 
     protected boolean isWindows()
     {
-        return OS.indexOf("win") > -1;
+        return OS.contains("win");
     }
 
     protected boolean isUnix()
     {
-        return (OS.indexOf("nix") > -1 ||
-                OS.indexOf("nux") > -1 ||
-                OS.indexOf("aix") > -1);
+        return (OS.contains("nix") ||
+                OS.contains("nux") ||
+                OS.contains("aix"));
     }
 
 
