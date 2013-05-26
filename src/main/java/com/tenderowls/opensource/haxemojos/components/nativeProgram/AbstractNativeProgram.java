@@ -110,7 +110,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
         try
         {
             List<String> environmentList = getEnvironment();
-            String[] environment = environmentList.toArray(new String[]{});
+            String[] environment = environmentList.toArray(new String[environmentList.size()]);
             arguments = updateArguments(arguments);
 
             if (isWindows())
@@ -123,7 +123,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
             logger.debug("Executing: " + StringUtils.join(arguments.iterator(), " "));
 
             Process process = Runtime.getRuntime().exec(
-                    arguments.toArray(new String[]{}),
+                    arguments.toArray(new String[arguments.size()]),
                     environment,
                     outputDirectory
             );
