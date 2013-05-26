@@ -94,7 +94,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
         }
         catch (Exception e)
         {
-            logger.error(String.format("Can't unpack %s", artifact.getArtifactId(), e));
+            logger.error(String.format("Can't unpack %s", artifact.getArtifactId()), e);
         }
 
         initialized = true;
