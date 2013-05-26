@@ -138,37 +138,13 @@ public abstract class AbstractNativeProgram implements NativeProgram {
     }
 
     @Override
-    public int execute(String[] arguments) throws NativeProgramException
+    public int execute(String ...arguments) throws NativeProgramException
     {
         List<String> list = new ArrayList<String>();
 
         Collections.addAll(list, arguments);
 
         return execute(list);
-    }
-
-    @Override
-    public int execute(String arg1) throws NativeProgramException
-    {
-        return execute(new String[]{arg1});
-    }
-
-    @Override
-    public int execute(String arg1, String arg2) throws NativeProgramException
-    {
-        return execute(new String[]{arg1, arg2});
-    }
-
-    @Override
-    public int execute(String arg1, String arg2, String arg3) throws NativeProgramException
-    {
-        return execute(new String[]{arg1, arg2, arg3});
-    }
-
-    @Override
-    public int execute(String arg1, String arg2, String arg3, String arg4) throws NativeProgramException
-    {
-        return execute(new String[]{arg1, arg2, arg3, arg4});
     }
 
     @Override
