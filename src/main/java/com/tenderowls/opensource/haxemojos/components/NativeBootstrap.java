@@ -195,18 +195,18 @@ public class NativeBootstrap {
         String systemName = System.getProperty("os.name");
         String preparedName = systemName.toLowerCase();
 
-        if (preparedName.indexOf("win") > -1)
+        if (preparedName.contains("win"))
         {
             return OS_CLASSIFIER_WINDOWS;
-        } else if (preparedName.indexOf("lin") > -1)
+        } else if (preparedName.contains("lin"))
         {
             String arch = System.getProperty("os.arch");
-            if (arch.indexOf("64") > -1)
+            if (arch.contains("64"))
             {
                 return OS_CLASSIFIER_LINUX + "64";
             }
             return OS_CLASSIFIER_LINUX;
-        } else if (preparedName.indexOf("mac") > -1)
+        } else if (preparedName.contains("mac"))
         {
             return OS_CLASSIFIER_MAC;
         } else

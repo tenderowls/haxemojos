@@ -175,7 +175,7 @@ public class TestCompileMojo extends AbstractHaxeMojo {
             {
                 // If file contains haxe.unit.TestCase in imports
                 // or inherits it then believe that it is test case.
-                if (FileUtils.fileRead(file).indexOf("haxe.unit.TestCase") > -1)
+                if (FileUtils.fileRead(file).contains("haxe.unit.TestCase"))
                     result.add(file);
             }
         }

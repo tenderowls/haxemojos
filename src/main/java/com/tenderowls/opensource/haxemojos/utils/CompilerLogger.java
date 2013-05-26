@@ -141,7 +141,7 @@ public class CompilerLogger implements Logger {
     {
         String sLower = s.toLowerCase();
 
-        if (sLower.indexOf("warning :") > -1 || sLower.indexOf("warning:") > -1)
+        if (sLower.contains("warning :") || sLower.contains("warning:"))
         {
             warnings.add(s);
             baseLogger.warn(s);

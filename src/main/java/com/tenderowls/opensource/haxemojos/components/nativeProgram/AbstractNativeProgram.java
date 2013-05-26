@@ -26,10 +26,7 @@ import com.tenderowls.opensource.haxemojos.utils.CleanStream;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents package on native application (or group on applications) as
@@ -94,7 +91,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
         }
         catch (Exception e)
         {
-            logger.error(String.format("Can't unpack %s", artifact.getArtifactId(), e));
+            logger.error(String.format("Can't unpack %s", artifact.getArtifactId()), e);
         }
 
         initialized = true;
@@ -110,7 +107,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
         try
         {
             List<String> environmentList = getEnvironment();
-            String[] environment = environmentList.toArray(new String[]{});
+            String[] environment = environmentList.toArray(new String[environmentList.size()]);
             arguments = updateArguments(arguments);
 
             if (isWindows())
@@ -123,7 +120,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
             logger.debug("Executing: " + StringUtils.join(arguments.iterator(), " "));
 
             Process process = Runtime.getRuntime().exec(
-                    arguments.toArray(new String[]{}),
+                    arguments.toArray(new String[arguments.size()]),
                     environment,
                     outputDirectory
             );
@@ -141,38 +138,13 @@ public abstract class AbstractNativeProgram implements NativeProgram {
     }
 
     @Override
-    public int execute(String[] arguments) throws NativeProgramException
+    public int execute(String ...arguments) throws NativeProgramException
     {
         List<String> list = new ArrayList<String>();
 
-        for (String arg : arguments)
-            list.add(arg);
+        Collections.addAll(list, arguments);
 
         return execute(list);
-    }
-
-    @Override
-    public int execute(String arg1) throws NativeProgramException
-    {
-        return execute(new String[]{arg1});
-    }
-
-    @Override
-    public int execute(String arg1, String arg2) throws NativeProgramException
-    {
-        return execute(new String[]{arg1, arg2});
-    }
-
-    @Override
-    public int execute(String arg1, String arg2, String arg3) throws NativeProgramException
-    {
-        return execute(new String[]{arg1, arg2, arg3});
-    }
-
-    @Override
-    public int execute(String arg1, String arg2, String arg3, String arg4) throws NativeProgramException
-    {
-        return execute(new String[]{arg1, arg2, arg3, arg4});
     }
 
     @Override
@@ -238,8 +210,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
             if (tmpDir.exists())
                 tmpDir.delete();
 
-            UnpackHelper unpackHelper = new UnpackHelper() {
-            };
+            UnpackHelper unpackHelper = new UnpackHelper();
             DefaultUnpackMethods unpackMethods = new DefaultUnpackMethods(logger);
             unpackHelper.unpack(tmpDir, artifact, unpackMethods, null);
 
@@ -259,14 +230,14 @@ public abstract class AbstractNativeProgram implements NativeProgram {
 
     protected boolean isWindows()
     {
-        return OS.indexOf("win") > -1;
+        return OS.contains("win");
     }
 
     protected boolean isUnix()
     {
-        return (OS.indexOf("nix") > -1 ||
-                OS.indexOf("nux") > -1 ||
-                OS.indexOf("aix") > -1);
+        return (OS.contains("nix") ||
+                OS.contains("nux") ||
+                OS.contains("aix"));
     }
 
 

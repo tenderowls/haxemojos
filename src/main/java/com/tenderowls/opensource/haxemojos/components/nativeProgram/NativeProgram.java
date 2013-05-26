@@ -31,15 +31,7 @@ public interface NativeProgram {
 
     int execute(List<String> arguments, Logger outputLogger) throws NativeProgramException;
 
-    int execute(String[] arguments) throws NativeProgramException;
-
-    int execute(String arg1) throws NativeProgramException;
-
-    int execute(String arg1, String arg2) throws NativeProgramException;
-
-    int execute(String arg1, String arg2, String arg3) throws NativeProgramException;
-
-    int execute(String arg1, String arg2, String arg3, String arg4) throws NativeProgramException;
+    int execute(String ...arguments) throws NativeProgramException;
 
     public File getHome();
 }
