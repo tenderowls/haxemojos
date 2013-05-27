@@ -3,6 +3,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
     <groupId>com.tenderowls.opensource</groupId>
     <artifactId>haxemojos-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
@@ -10,21 +16,7 @@
 
     <name>Haxemojos</name>
     <url>http://opensource.tenderowls.com/haxemojos</url>
-
-    <developers>
-        <developer>
-            <name>Aleksey Fomkin</name>
-            <email>aleksey.fomkin@gmail.com</email>
-        </developer>
-    </developers>
-
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>http://apache.org/licenses/LICENSE-2.0</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+    <description>Maven plugin created to build Haxe projects</description>
 
     <build>
         <plugins>
@@ -119,6 +111,28 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-artifact</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+        <!-- Plexus -->
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-archiver</artifactId>
+            <version>2.1.2</version>
+        </dependency>
+        <!-- Test scope -->
+        <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity</artifactId>
             <version>1.7</version>
@@ -134,11 +148,6 @@
             <artifactId>plexus-utils</artifactId>
             <version>3.0.1</version>
         </dependency>
-        <dependency>
-            <groupId>com.yelbota.plugins</groupId>
-            <artifactId>native-dependency-maven-plugin-base</artifactId>
-            <version>1.1</version>
-        </dependency>
         <!-- Test scope -->
         <dependency>
             <groupId>org.testng</groupId>
@@ -149,7 +158,7 @@
         <dependency>
             <groupId>org.apache.maven.plugin-testing</groupId>
             <artifactId>maven-plugin-testing-harness</artifactId>
-            <version>2.0-alpha-1</version>
+            <version>2.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -165,32 +174,30 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>2.7</version>
-<!--
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>index</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
--->
             </plugin>
         </plugins>
     </reporting>
-
-    <distributionManagement>
-        <repository>
-            <!-- I know, I know! -->
-            <id>yelbota-dropbox-repository</id>
-            <url>file:///Users/fomkin/Dropbox/Public/maven</url>
-        </repository>
-    </distributionManagement>
 
     <scm>
         <url>https://github.com/tenderowls/haxemojos</url>
         <developerConnection>scm:git:github.com/tenderowls/haxemojos.git</developerConnection>
         <connection>scm:git:github.com/tenderowls/haxemojos.git</connection>
     </scm>
+
+    <developers>
+        <developer>
+            <name>Aleksey Fomkin</name>
+            <email>aleksey.fomkin@gmail.com</email>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
