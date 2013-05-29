@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 https://github.com/yelbota/native-dependency-maven-plugin-base
+ * Copyright (C) 2012 https://github.com/tenderowls/haxemojos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

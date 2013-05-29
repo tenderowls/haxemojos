@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 https://github.com/yelbota/native-dependency-maven-plugin-base
+ * Copyright (C) 2012 https://github.com/tenderowls/haxemojos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,21 @@
  */
 package com.yelbota.plugins.nd.utils;
 
+import com.yelbota.plugins.nd.stubs.LoggerStub;
 import org.codehaus.plexus.util.FileUtils;
+import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.IOException;
 
-public abstract class AbstractUnpackMethodTest {
+public class ZipUnpackMethodTest extends AbstractUnpackMethodTest {
 
-    protected final File pwd = new File(".");
+    @Test
+    public void testUnpack() throws Exception {
 
-    protected File createDirectory(String path) throws IOException {
+        File file = FileUtils.resolveFile(new File("."), "src/test/resources/unit/archive.zip");
+        File directory = createDirectory("target/unit/archive/zip");
 
-        File file = FileUtils.resolveFile(pwd, path);
-
-        if (file.exists()) {
-
-            FileUtils.cleanDirectory(file);
-            file.delete();
-        }
-
-        file.mkdirs();
-        return file;
+        UnpackMethod unpackMethod = new ZipUnpackMethod(new LoggerStub());
+        unpackMethod.unpack(file, directory);
     }
 }

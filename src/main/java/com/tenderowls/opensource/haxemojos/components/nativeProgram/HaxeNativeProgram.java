@@ -15,6 +15,7 @@
  */
 package com.tenderowls.opensource.haxemojos.components.nativeProgram;
 
+import com.tenderowls.opensource.haxemojos.utils.NativeProgramVersion;
 import org.codehaus.plexus.component.annotations.Component;
 
 import java.io.File;
@@ -40,7 +41,21 @@ public final class HaxeNativeProgram extends AbstractNativeProgram {
     {
         List<String> env = super.getEnvironment();
         File std = new File(directory, "std");
-        env.add("HAXE_LIBRARY_PATH=" + std.getAbsolutePath());
+
+        boolean haxeStdPathEnvVarIsOldStyle;
+
+        try {
+            NativeProgramVersion haxeVersion = new NativeProgramVersion(artifact.getVersion());
+            haxeStdPathEnvVarIsOldStyle = haxeVersion.compare("3.0.0-rc2") < 0;
+        } catch (NativeProgramVersion.NativeProgramVersionException e) {
+            haxeStdPathEnvVarIsOldStyle = false;
+        }
+
+        String haxeStdPathEnvVar = haxeStdPathEnvVarIsOldStyle
+                ? "HAXE_LIBRARY_PATH="
+                : "HAXE_STD_PATH=";
+
+        env.add(haxeStdPathEnvVar + std.getAbsolutePath());
         return env;
     }
 }

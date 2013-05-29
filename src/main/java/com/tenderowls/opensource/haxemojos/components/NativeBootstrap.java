@@ -205,7 +205,7 @@ public class NativeBootstrap {
             {
                 return OS_CLASSIFIER_LINUX + "64";
             }
-            return OS_CLASSIFIER_LINUX;
+            return OS_CLASSIFIER_LINUX + "32";
         } else if (preparedName.contains("mac"))
         {
             return OS_CLASSIFIER_MAC;
@@ -249,8 +249,8 @@ public class NativeBootstrap {
     private static final String ZIP = "zip";
     private static final String TGZ = "tgz";
     private static final String TARGZ = "tar.gz";
-    private static final String OS_CLASSIFIER_MAC = "mac";
-    private static final String OS_CLASSIFIER_WINDOWS = "windows";
+    private static final String OS_CLASSIFIER_MAC = "osx";
+    private static final String OS_CLASSIFIER_WINDOWS = "win";
     private static final String OS_CLASSIFIER_LINUX = "linux";
     private static final String HAXE_COMPILER_KEY = "org.haxe.compiler:haxe-compiler";
     private static final String NEKO_KEY = "org.nekovm:nekovm";
