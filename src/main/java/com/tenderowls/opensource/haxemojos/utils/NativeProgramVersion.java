@@ -103,15 +103,15 @@ public final class NativeProgramVersion {
 
     public int compare(NativeProgramVersion b) {
 
-        int majorCompare = Integer.compare(major, b.major);
+        int majorCompare = compareInt(major, b.major);
 
         if (majorCompare == 0) {
 
-            int minorCompare = Integer.compare(minor, b.minor);
+            int minorCompare = compareInt(minor, b.minor);
 
             if (minorCompare == 0) {
 
-                int revisionCompare = Integer.compare(revision, b.revision);
+                int revisionCompare = compareInt(revision, b.revision);
 
                 if (revisionCompare == 0) {
 
@@ -119,7 +119,7 @@ public final class NativeProgramVersion {
                         return b.isSnapshot ? 0 : -1;
                     } else if (isReleaseCandidate()) {
                         if (b.isReleaseCandidate()) {
-                            return Integer.compare(releaseCandidate, b.releaseCandidate);
+                            return compareInt(releaseCandidate, b.releaseCandidate);
                         } else if (b.isSnapshot) {
                             return 1;
                         } else {
@@ -145,6 +145,10 @@ public final class NativeProgramVersion {
         return compare(new NativeProgramVersion(b));
     }
 
+    private int compareInt(int a, int b) {
+        return a < b ? -1 : (a > b ? 1 : 0); 
+    }
+    
     private int parseIsReleaseCandidate(String s) {
         s = s.toLowerCase();
         if (s.contains("-rc")) {
