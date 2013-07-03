@@ -180,8 +180,8 @@
 
     <scm>
         <url>https://github.com/tenderowls/haxemojos</url>
-        <developerConnection>scm:git:github.com/tenderowls/haxemojos.git</developerConnection>
-        <connection>scm:git:github.com/tenderowls/haxemojos.git</connection>
+        <developerConnection>scm:git:git@github.com:tenderowls/haxemojos.git</developerConnection>
+        <connection>scm:git:git://github.com/tenderowls/haxemojos.git</connection>
     </scm>
 
     <developers>
