@@ -11,7 +11,7 @@
     <groupId>com.tenderowls.opensource</groupId>
     <artifactId>haxemojos-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>1.0.0-RC1</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <name>Haxemojos</name>
     <url>http://opensource.tenderowls.com/haxemojos</url>
