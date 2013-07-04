@@ -56,6 +56,8 @@ public final class HaxeNativeProgram extends AbstractNativeProgram {
                 : "HAXE_STD_PATH=";
 
         env.add(haxeStdPathEnvVar + std.getAbsolutePath());
+        env.add("JAVA_HOME=" + System.getenv("JAVA_HOME"));
+
         return env;
     }
 }
