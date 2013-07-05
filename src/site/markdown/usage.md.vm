@@ -5,21 +5,10 @@ into setting of your project or maven global `settings.xml`.
 
     <pluginRepositories>
         <pluginRepository>
-            <id>yelbota-dropbox-repo</id>
-            <url>http://dl.dropbox.com/u/36020926/maven/</url>
-            <snapshots><enabled>false</enabled></snapshots>
-            <releases><enabled>true</enabled></releases>
+            <id>haxemojos-public-repository</id>
+            <url>http://repo.haxemojos.org/content/groups/public</url>
         </pluginRepository>
     </pluginRepositories>
-
-    <repositories>
-        <repository>
-            <id>yelbota-dropbox-repo</id>
-            <url>http://dl.dropbox.com/u/36020926/maven/</url>
-            <snapshots><enabled>false</enabled></snapshots>
-            <releases><enabled>true</enabled></releases>
-        </repository>
-    </repositories>
 
 Plugin hosted in the Central, but [Haxe][haxe]
 compiler and [Neko][neko] runtime artifacts

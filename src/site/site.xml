@@ -18,6 +18,7 @@
         <menu name="Understanding">
             <item name="Haxelib repository" href="haxelib.html"/>
             <item name="HARs and multi module projects" href="har.html"/>
+            <item name="Examples" href="https://github.com/tenderowls/haxemojos-examples"/>
         </menu>
         <menu name="Development">
             <item name="Fork me!" href="http://github.com/tenderowls/haxemojos"/>
