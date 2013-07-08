@@ -26,7 +26,7 @@ public abstract class AbstractCompileMojo extends AbstractHaxeMojo {
     /**
      *  Main class
      */
-    @Parameter
+    @Parameter(required = true)
     protected String main;
 
     /**
