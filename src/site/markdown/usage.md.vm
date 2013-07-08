@@ -10,6 +10,13 @@ into setting of your project or maven global `settings.xml`.
         </pluginRepository>
     </pluginRepositories>
 
+    <repositories>
+        <repository>
+            <id>haxemojos-public-repository</id>
+            <url>http://repo.haxemojos.org/content/groups/public</url>
+        </repository>
+    </repositories>
+
 Plugin hosted in the Central, but [Haxe][haxe]
 compiler and [Neko][neko] runtime artifacts
 not because the Central allows to publish
