@@ -34,6 +34,8 @@ public class HaxeLifecycleParticipant extends AbstractMavenLifecycleParticipant 
     @Override
     public void afterProjectsRead(MavenSession session) throws MavenExecutionException
     {
+        super.afterProjectsRead(session);
+
         try
         {
             MavenProject project = session.getCurrentProject();

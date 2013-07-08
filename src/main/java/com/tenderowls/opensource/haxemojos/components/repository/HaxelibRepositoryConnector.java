@@ -130,6 +130,7 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
     public void put(Collection<? extends ArtifactUpload> artifactUploads, Collection<? extends MetadataUpload> metadataUploads)
     {
         // TODO Deploying to http://lib.haxe.org. Need to define haxelib packaging?
+        defaultRepositoryConnector.put(artifactUploads, metadataUploads);
     }
 
     @Override

@@ -78,7 +78,7 @@ public class NativeBootstrap {
 
         Map<String, Plugin> pluginMap = project.getBuild().getPluginsAsMap();
         Plugin plugin = pluginMap.get("com.tenderowls.opensource:haxemojos-maven-plugin");
-        Artifact pluginArtifact = resolveArtifact(repositorySystem.createPluginArtifact(plugin));
+        Artifact pluginArtifact = resolveArtifact(repositorySystem.createPluginArtifact(plugin), project.getPluginArtifactRepositories());
         String pluginHomeName = plugin.getArtifactId() + "-" + plugin.getVersion();
         File pluginHome = new File(pluginArtifact.getFile().getParentFile(), pluginHomeName);
 
@@ -140,7 +140,7 @@ public class NativeBootstrap {
                 Artifact artifact = resolveArtifact(repositorySystem.createArtifactWithClassifier(
                         dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion(),
                         getSDKArtifactPackaging(classifier), classifier
-                ));
+                ), project.getRemoteArtifactRepositories());
                 artifactsMap.put(artifactKey, artifact);
             }
         }
@@ -215,13 +215,16 @@ public class NativeBootstrap {
         }
     }
 
-    private Artifact resolveArtifact(Artifact artifact) throws Exception
+    private Artifact resolveArtifact(Artifact artifact, List<ArtifactRepository> artifactRepositories) throws Exception
     {
+        if (artifact.isResolved() || artifact.getFile() != null)
+            return artifact;
+
         ArtifactResolutionRequest request = new ArtifactResolutionRequest();
 
         request.setArtifact(artifact);
         request.setLocalRepository(localRepository);
-        request.setRemoteRepositories(project.getRemoteArtifactRepositories());
+        request.setRemoteRepositories(artifactRepositories);
         ArtifactResolutionResult resolutionResult = repositorySystem.resolve(request);
 
         if (!resolutionResult.isSuccess())
