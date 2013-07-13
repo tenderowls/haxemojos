@@ -214,12 +214,22 @@ public abstract class AbstractNativeProgram implements NativeProgram {
             DefaultUnpackMethods unpackMethods = new DefaultUnpackMethods(logger);
             unpackHelper.unpack(tmpDir, artifact, unpackMethods, null);
 
-            for (String firstFileName : tmpDir.list())
-            {
-                File firstFile = new File(tmpDir, firstFileName);
-                firstFile.renameTo(unpackDirectory);
-                break;
-            }
+	        if (tmpDir.list().length == 1)
+	        {
+		        File firstFile = new File(tmpDir, tmpDir.list()[0]);
+		        firstFile.renameTo(unpackDirectory);
+	        }
+	        else
+	        {
+		        unpackDirectory.mkdirs();
+	            for (String fileName : tmpDir.list())
+	            {
+		            File tmpFile = new File(tmpDir, fileName);
+		            File descFile = new File(unpackDirectory, fileName);
+		            tmpFile.renameTo(descFile);
+	            }
+		        tmpDir.delete();
+	        }
         }
 
         String directoryPath = unpackDirectory.getAbsolutePath();
