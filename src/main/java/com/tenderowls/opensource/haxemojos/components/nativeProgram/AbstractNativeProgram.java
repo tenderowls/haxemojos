@@ -224,6 +224,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
                 : tmpDir;
 
             FileUtils.copyDirectoryStructure(sourceDirectory, unpackDirectory);
+            updateExecutableMod(sourceDirectory, unpackDirectory);
         }
 
         String directoryPath = unpackDirectory.getAbsolutePath();
@@ -232,10 +233,16 @@ public abstract class AbstractNativeProgram implements NativeProgram {
         return unpackDirectory;
     }
 
-    protected void updateExecutableMod(File executable)
+    private void updateExecutableMod(File sourceDirectory, File unpackDirectory) throws IOException
     {
-        if (!executable.canExecute())
-            executable.setExecutable(true);
+        Iterator<File> sourceFiles = FileUtils.getFiles(sourceDirectory, "**", null).iterator();
+        Iterator<File> unpackedFiles = FileUtils.getFiles(unpackDirectory, "**", null).iterator();
+
+        while (sourceFiles.hasNext() && unpackedFiles.hasNext())
+        {
+            if (sourceFiles.next().canExecute())
+                unpackedFiles.next().setExecutable(true);
+        }
     }
 
     protected boolean isWindows()

@@ -52,7 +52,6 @@ public final class NekoNativeProgram extends AbstractNativeProgram {
     {
         List<String> list = new ArrayList<String>();
         File executable = new File(directory, isWindows() ? "neko.exe" : "neko");
-        updateExecutableMod(executable);
         list.add(executable.getAbsolutePath());
         list.addAll(arguments);
 
