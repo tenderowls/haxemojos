@@ -29,6 +29,7 @@ public final class HaxelibNativeProgram extends AbstractNativeProgram {
     {
         List<String> list = new ArrayList<String>();
         File executable = new File(directory, isWindows() ? "haxelib.exe" : "haxelib");
+        updateExecutableMod(executable);
         list.add(executable.getAbsolutePath());
         list.addAll(arguments);
 

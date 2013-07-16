@@ -21,6 +21,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 import com.tenderowls.opensource.haxemojos.utils.CleanStream;
 
@@ -213,29 +214,28 @@ public abstract class AbstractNativeProgram implements NativeProgram {
             UnpackHelper unpackHelper = new UnpackHelper();
             DefaultUnpackMethods unpackMethods = new DefaultUnpackMethods(logger);
             unpackHelper.unpack(tmpDir, artifact, unpackMethods, null);
+            String[] tmpDirListing = tmpDir.list();
 
-	        if (tmpDir.list().length == 1)
-	        {
-		        File firstFile = new File(tmpDir, tmpDir.list()[0]);
-		        firstFile.renameTo(unpackDirectory);
-	        }
-	        else
-	        {
-		        unpackDirectory.mkdirs();
-	            for (String fileName : tmpDir.list())
-	            {
-		            File tmpFile = new File(tmpDir, fileName);
-		            File descFile = new File(unpackDirectory, fileName);
-		            tmpFile.renameTo(descFile);
-	            }
-		        tmpDir.delete();
-	        }
+            // Sometimes we have archive which contains directory
+            // with content, sometimes we have content in the
+            // root of the archive.
+            File sourceDirectory = tmpDirListing.length == 1
+                ? new File(tmpDir, tmpDirListing[0])
+                : tmpDir;
+
+            FileUtils.copyDirectoryStructure(sourceDirectory, unpackDirectory);
         }
 
         String directoryPath = unpackDirectory.getAbsolutePath();
         // Add current directory to path
         path.add(directoryPath);
         return unpackDirectory;
+    }
+
+    protected void updateExecutableMod(File executable)
+    {
+        if (!executable.canExecute())
+            executable.setExecutable(true);
     }
 
     protected boolean isWindows()
