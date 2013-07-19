@@ -13,8 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tenderowls.opensource.haxemojos.utils;
+package com.tenderowls.opensource.haxemojos.components.artifacts;
 
-public enum CompileTarget {
-    java, neko, swf, swc
+import com.tenderowls.opensource.haxemojos.utils.HaxeFileExtensions;
+import org.apache.maven.artifact.handler.ArtifactHandler;
+import org.codehaus.plexus.component.annotations.Component;
+
+@Component( role = ArtifactHandler.class, hint = HaxeFileExtensions.SWC )
+public class SwcArtifactHandler extends AbstractHaxeArtifactHandler implements ArtifactHandler {
+
+    @Override
+    public String getType()
+    {
+        return HaxeFileExtensions.SWC;
+    }
 }

@@ -169,5 +169,18 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    
+    <repositories>
+        <repository>
+            <id>yelbota-dropbox-repo</id>
+            <url>http://dl.dropbox.com/u/36020926/maven/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
 
 </project>

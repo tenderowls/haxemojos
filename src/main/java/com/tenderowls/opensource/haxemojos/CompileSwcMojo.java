@@ -24,14 +24,14 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
- * Compile SWF for Adobe(R) Flash Player(TM) or Adobe(R) AIR(TM).
+ * Compile SWC for Adobe(R) Flash Player(TM) or Adobe(R) AIR(TM).
  */
-@Mojo(name="compileSwf", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
-public class CompileSwfMojo extends AbstractCompileFlashMojo {
+@Mojo(name="compileSwc", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
+public class CompileSwcMojo extends AbstractCompileFlashMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
-        execute(HaxeFileExtensions.SWF, CompileTarget.swf);
+        execute(HaxeFileExtensions.SWC, CompileTarget.swc);
     }
 }
