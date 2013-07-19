@@ -15,96 +15,23 @@
  */
 package com.tenderowls.opensource.haxemojos;
 
-import com.tenderowls.opensource.haxemojos.utils.ArtifactFilterHelper;
 import com.tenderowls.opensource.haxemojos.utils.CompileTarget;
 import com.tenderowls.opensource.haxemojos.utils.HaxeFileExtensions;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-
-import java.io.File;
-import java.util.EnumMap;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Compile SWF for Adobe(R) Flash Player(TM) or Adobe(R) AIR(TM).
  */
 @Mojo(name="compileSwf", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
-public class CompileSwfMojo extends AbstractCompileMojo {
-
-    /**
-     * More type strict flash API
-     */
-    @Parameter
-    private boolean flashStrict;
-
-    /**
-     * Change the SWF version (6 to 11.x)
-     */
-    @Parameter(defaultValue = "11.2", required = true)
-    private String swfVersion;
-
-    /**
-     * Place objects found on the stage of the SWF lib
-     */
-    @Parameter
-    private boolean flashUseStage;
-
-    /**
-     * Define SWF header (width:height:fps:color)
-     */
-    @Parameter
-    private String swfHeader;
+public class CompileSwfMojo extends AbstractCompileFlashMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
-        super.execute();
-
-        File output = new File(outputDirectory, project.getBuild().getFinalName() + "." + HaxeFileExtensions.SWF);
-
-        if (output.exists())
-            output.delete();
-
-        EnumMap<CompileTarget, String> targets = new EnumMap<CompileTarget, String>(CompileTarget.class);
-        targets.put(CompileTarget.swf, output.getAbsolutePath());
-
-        try
-        {
-            List<String> additionalArgs = getFlashAdditionalArguments();
-            additionalArgs.addAll(getCommonAdditionalArgs());
-            compiler.compile(project, targets, main, debug, false, ArtifactFilterHelper.COMPILE, additionalArgs);
-        }
-        catch (Exception e)
-        {
-            throw new MojoFailureException("Flash compilation failed", e);
-        }
-
-        if (output.exists())
-            project.getArtifact().setFile(output);
-    }
-
-    private List<String> getFlashAdditionalArguments()
-    {
-        List<String> additionalArgs = new LinkedList<String>();
-
-        if (flashStrict)
-            additionalArgs.add("-flash-strict");
-
-        if (flashUseStage)
-            additionalArgs.add("-flash-use-stage");
-
-        if (swfHeader != null) {
-            additionalArgs.add("-swf-header");
-            additionalArgs.add(swfHeader);
-        }
-
-        additionalArgs.add("-swf-version");
-        additionalArgs.add(swfVersion);
-        return additionalArgs;
+        execute(HaxeFileExtensions.SWF, CompileTarget.swf);
     }
 }
