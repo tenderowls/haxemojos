@@ -229,7 +229,7 @@ public class NativeBootstrap {
             if (artifact.getType().equals(TGZ)) {
                 artifact = repositorySystem.createArtifactWithClassifier(
                         artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
-                        TARGZ, artifact.getClassifier());
+                        TGZ, artifact.getClassifier());
                 request = new ArtifactResolutionRequest();
                 request.setArtifact(artifact);
                 request.setLocalRepository(localRepository);
@@ -249,7 +249,7 @@ public class NativeBootstrap {
     private static final String ZIP = "zip";
     private static final String TGZ = "tgz";
     private static final String TARGZ = "tar.gz";
-    private static final String OS_CLASSIFIER_MAC = "mac";
+    private static final String OS_CLASSIFIER_MAC = "osx";
     private static final String OS_CLASSIFIER_WINDOWS = "windows";
     private static final String OS_CLASSIFIER_LINUX = "linux";
     private static final String HAXE_COMPILER_KEY = "org.haxe.compiler:haxe-compiler";
