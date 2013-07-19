@@ -139,6 +139,11 @@ public class CompileHarMojo extends AbstractHaxeMojo {
                     outputFile = new File(outputBase, "flash.swf");
                     break;
                 }
+                case swc:
+                {
+                    outputFile = new File(outputBase, "flash.swc");
+                    break;
+                }
             }
 
             compileTargets.put(target, outputFile.getAbsolutePath());
@@ -147,7 +152,7 @@ public class CompileHarMojo extends AbstractHaxeMojo {
         List<String> additionalArgs = new LinkedList<String>();
 
         // Add flash args
-        if (targets.contains(CompileTarget.swf))
+        if (targets.contains(CompileTarget.swf) || targets.contains(CompileTarget.swc))
         {
             if (flashStrict)
                 additionalArgs.add("-flash-strict");

@@ -13,8 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tenderowls.opensource.haxemojos.utils;
+package com.tenderowls.opensource.haxemojos.components.lifecycle;
 
-public enum CompileTarget {
-    java, neko, swf, swc
+import com.tenderowls.opensource.haxemojos.utils.HaxeFileExtensions;
+import org.apache.maven.lifecycle.mapping.LifecycleMapping;
+import org.codehaus.plexus.component.annotations.Component;
+
+@Component( role = LifecycleMapping.class, hint = HaxeFileExtensions.SWC )
+public class SwcLifecycleMapping extends AbstractHaxeLifecycleMapping implements LifecycleMapping
+{
+    public String getCompiler()
+    {
+        return "com.tenderowls.opensource:haxemojos-maven-plugin:compileSwс";
+    }
 }
