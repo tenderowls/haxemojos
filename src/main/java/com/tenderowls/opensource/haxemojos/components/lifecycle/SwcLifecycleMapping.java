@@ -24,6 +24,6 @@ public class SwcLifecycleMapping extends AbstractHaxeLifecycleMapping implements
 {
     public String getCompiler()
     {
-        return "com.tenderowls.opensource:haxemojos-maven-plugin:compileSwс";
+        return "com.tenderowls.opensource:haxemojos-maven-plugin:compileSwc";
     }
 }
