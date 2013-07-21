@@ -229,7 +229,7 @@ public class NativeBootstrap {
             if (artifact.getType().equals(TGZ)) {
                 artifact = repositorySystem.createArtifactWithClassifier(
                         artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
-                        TGZ, artifact.getClassifier());
+                        TARGZ, artifact.getClassifier());
                 request = new ArtifactResolutionRequest();
                 request.setArtifact(artifact);
                 request.setLocalRepository(localRepository);
