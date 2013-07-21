@@ -166,7 +166,14 @@ public abstract class AbstractNativeProgram implements NativeProgram {
     {
         ArrayList<String> result = new ArrayList<String>();
         result.add("PATH=" + StringUtils.join(path.iterator(), File.pathSeparator));
-        result.add("HOME=" + pluginHome.getAbsolutePath());
+        String homeString = pluginHome.getAbsolutePath();
+
+        if (isWindows())
+        {
+            result.add("HOMEDRIVE=" + homeString.substring(0,2));
+            result.add("HOMEPATH=" + homeString.substring(2));
+        }
+        else result.add("HOME=" + homeString);
 
         for (String evnKey : env.keySet())
         {
@@ -240,8 +247,11 @@ public abstract class AbstractNativeProgram implements NativeProgram {
 
         while (sourceFiles.hasNext() && unpackedFiles.hasNext())
         {
-            if (sourceFiles.next().canExecute())
-                unpackedFiles.next().setExecutable(true);
+            File sourceFile = sourceFiles.next();
+            File unpackedFile = unpackedFiles.next();
+
+            if (sourceFile.canExecute())
+                unpackedFile.setExecutable(true);
         }
     }
 
