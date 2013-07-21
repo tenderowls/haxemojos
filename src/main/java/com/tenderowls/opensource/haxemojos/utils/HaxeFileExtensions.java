@@ -22,4 +22,5 @@ public class HaxeFileExtensions {
     public static final String HAR = "har";
     public static final String NEKO = "n";
     public static final String SWF = "swf";
+    public static final String SWC = "swc";
 }
