@@ -117,7 +117,7 @@ public class TestCompileMojo extends AbstractHaxeMojo {
             surefireDir.mkdir();
 
             VelocityContext context = new VelocityContext();
-	    context.put("cases", getTestClasses());
+	        context.put("cases", getTestClasses());
             context.put("surefireDir", (surefireDir
                 .getAbsolutePath()
                 +File.separator)

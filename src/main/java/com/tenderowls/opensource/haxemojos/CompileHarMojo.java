@@ -17,9 +17,11 @@ package com.tenderowls.opensource.haxemojos;
 
 import com.tenderowls.opensource.haxemojos.components.HaxeCompiler;
 import com.tenderowls.opensource.haxemojos.utils.*;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.*;
+import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.util.StringUtils;
 
@@ -164,8 +166,8 @@ public class CompileHarMojo extends AbstractHaxeMojo {
         // Create macro command which add all classes
         // from compile classpath to haxe compiler.
         String sourcePaths = StringUtils
-		.join(project.getCompileSourceRoots().iterator(), "','")
-		.replace("\\", "\\\\");
+            .join(project.getCompileSourceRoots().iterator(), "','")
+            .replace("\\", "\\\\");
 
         additionalArgs.add("--macro");
         additionalArgs.add("haxe.macro.Compiler.include('', true, [], [ '" + sourcePaths + "' ])");

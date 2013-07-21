@@ -46,12 +46,13 @@ public abstract class AbstractHaxeMojo extends AbstractMojo {
     /**
      * Add a named resource files
      *
-     *   <resources>
-     *       <resource>
-     *           <name>license-test</name>
-     *           <file>LICENSE.txt</file>
-     *       </resource>
-     *   </resources>
+     * <pre>
+     * &#60;resources&#62;
+     *     &#60;resource&#62;
+     *         &#60;name&#62;license-test&#60;/name&#62;
+     *         &#60;file&#62;LICENSE.txt&#60;/file&#62;
+     *     &#60;/resource&#62;
+     * &#60;/resources&#62;</pre>
      */
     @Parameter
     protected List<HaxeResource> resources;

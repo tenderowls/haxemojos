@@ -21,6 +21,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 import com.tenderowls.opensource.haxemojos.utils.CleanStream;
 
@@ -213,19 +214,35 @@ public abstract class AbstractNativeProgram implements NativeProgram {
             UnpackHelper unpackHelper = new UnpackHelper();
             DefaultUnpackMethods unpackMethods = new DefaultUnpackMethods(logger);
             unpackHelper.unpack(tmpDir, artifact, unpackMethods, null);
+            String[] tmpDirListing = tmpDir.list();
 
-            for (String firstFileName : tmpDir.list())
-            {
-                File firstFile = new File(tmpDir, firstFileName);
-                firstFile.renameTo(unpackDirectory);
-                break;
-            }
+            // Sometimes we have archive which contains directory
+            // with content, sometimes we have content in the
+            // root of the archive.
+            File sourceDirectory = tmpDirListing.length == 1
+                ? new File(tmpDir, tmpDirListing[0])
+                : tmpDir;
+
+            FileUtils.copyDirectoryStructure(sourceDirectory, unpackDirectory);
+            updateExecutableMod(sourceDirectory, unpackDirectory);
         }
 
         String directoryPath = unpackDirectory.getAbsolutePath();
         // Add current directory to path
         path.add(directoryPath);
         return unpackDirectory;
+    }
+
+    private void updateExecutableMod(File sourceDirectory, File unpackDirectory) throws IOException
+    {
+        Iterator<File> sourceFiles = FileUtils.getFiles(sourceDirectory, "**", null).iterator();
+        Iterator<File> unpackedFiles = FileUtils.getFiles(unpackDirectory, "**", null).iterator();
+
+        while (sourceFiles.hasNext() && unpackedFiles.hasNext())
+        {
+            if (sourceFiles.next().canExecute())
+                unpackedFiles.next().setExecutable(true);
+        }
     }
 
     protected boolean isWindows()

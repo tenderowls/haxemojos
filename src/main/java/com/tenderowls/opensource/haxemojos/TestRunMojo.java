@@ -48,13 +48,15 @@ public final class TestRunMojo extends AbstractHaxeMojo {
 
             if (testFile.exists())
             {
-                neko.execute(testFile.getAbsolutePath());
+                if (neko.execute(testFile.getAbsolutePath()) > 0) {
+                    throw new MojoFailureException("Tests failed");
+                }
             }
             else getLog().info("No tests to run.");
         }
         catch (NativeProgramException e)
         {
-            throw new MojoFailureException("Test failed", e);
+            throw new MojoFailureException("Tests failed", e);
         }
     }
 }
