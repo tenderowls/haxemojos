@@ -25,7 +25,7 @@ long time ago but need support.
 Available packaging
 ---------------------------------------
 
-`swf`, `neko`, `java`, `har`
+`swc`, `swf`, `neko`, `java`, `har`
 
 Goals Overview
 ---------------------------------------
@@ -37,5 +37,6 @@ The Haxemojos Maven Plugin has six goals:
   * [haxemojos:compileJava](./compileJava-mojo.html) Compile `jar`. Note, that this `jar` is different with `jar` which compiles with `maven-compiler-plugin`. Haxe jar includes all dependencies and Haxe runtime classes. If you want share your haxe code in the module, use `har` packaging.
   * [haxemojos:compileNeko](./compileNeko-mojo.html) Compile to nekovm bytecode.
   * [haxemojos:compileSwf](./compileSwf-mojo.html) Compile SWF for Adobe(R) Flash Player(TM) or Adobe(R) AIR(TM).
+  * [haxemojos:compileSwc](./compileSwc-mojo.html) Compile SWC library.
   * [haxemojos:testCompile](./testCompile-mojo.html) Compile tests with `neko` compile target.
   * [haxemojos:testRun](./testRun-mojo.html) Run tests with `neko`.
