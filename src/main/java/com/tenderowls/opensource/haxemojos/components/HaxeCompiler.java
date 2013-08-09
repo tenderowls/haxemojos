@@ -19,6 +19,7 @@ import com.tenderowls.opensource.haxemojos.components.nativeProgram.NativeProgra
 import com.tenderowls.opensource.haxemojos.utils.*;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
+import org.apache.maven.model.Resource;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.codehaus.plexus.component.annotations.Component;
@@ -28,10 +29,7 @@ import org.codehaus.plexus.logging.Logger;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component(role = HaxeCompiler.class)
 public final class HaxeCompiler {
@@ -68,6 +66,7 @@ public final class HaxeCompiler {
             }
         }
 
+        addResources(project, args);
         addLibs(args, project, artifactFilter);
         addHars(args, project, targets.keySet(), artifactFilter);
         addDebug(args, debug);
@@ -105,6 +104,19 @@ public final class HaxeCompiler {
             {
 	        throw new Exception("Compilation failure");
             }
+        }
+    }
+
+    private void addResources(MavenProject project, List<String> args) {
+
+        HashSet<String> resourcePaths = new HashSet<String>();
+        for (Resource resource : project.getResources()) {
+            String targetPath = resource.getTargetPath();
+            resourcePaths.add(targetPath == null ? resource.getDirectory() : targetPath);
+        }
+
+        for (String sourceRoot: resourcePaths) {
+            addSourcePath(args, sourceRoot);
         }
     }
 

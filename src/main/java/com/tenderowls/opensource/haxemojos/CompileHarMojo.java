@@ -18,6 +18,7 @@ package com.tenderowls.opensource.haxemojos;
 import com.tenderowls.opensource.haxemojos.components.HaxeCompiler;
 import com.tenderowls.opensource.haxemojos.utils.*;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.*;
@@ -30,10 +31,7 @@ import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.EnumMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Builds a `har` package. This is a zip archive which
@@ -82,6 +80,16 @@ public class CompileHarMojo extends AbstractHaxeMojo {
 
             for (String compileRoot : project.getCompileSourceRoots())
                 archiver.addDirectory(new File(compileRoot));
+
+            HashSet<String> resourcePaths = new HashSet<String>();
+            for (Resource resource : project.getResources()) {
+                String targetPath = resource.getTargetPath();
+                resourcePaths.add(targetPath == null ? resource.getDirectory() : targetPath);
+            }
+
+            for (String sourceRoot: resourcePaths) {
+                archiver.addDirectory(new File(sourceRoot));
+            }
 
             File destFile = new File(outputDirectory, project.getBuild().getFinalName() + "." + HaxeFileExtensions.HAR);
             archiver.setDestFile(destFile);
