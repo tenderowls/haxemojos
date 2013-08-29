@@ -23,17 +23,26 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 import java.io.File;
+import java.util.List;
 
 /**
- * Run tests with `neko`.
+ * Run 'haxelib' with parameters.
  */
-@Mojo(name = "testRun", defaultPhase = LifecyclePhase.TEST)
+@Mojo(name = "haxelibRun")
 public final class HaxelibRunMojo extends AbstractHaxeMojo {
 
-    @Component(hint = "neko")
-    private NativeProgram neko;
+    @Component(hint = "haxelib")
+    private NativeProgram haxelibRunner;
+
+    @Parameter(required=true)
+    private String haxelib;
+
+    @Parameter(required=true)
+    private List<String> arguments;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
@@ -42,19 +51,13 @@ public final class HaxelibRunMojo extends AbstractHaxeMojo {
 
         try
         {
-            File testFile = new File(outputDirectory, OutputNamesHelper.getTestOutput(project));
-
-            if (testFile.exists())
-            {
-                if (neko.execute(testFile.getAbsolutePath()) > 0) {
-                    throw new MojoFailureException("Tests failed");
-                }
-            }
-            else getLog().info("No tests to run.");
+            arguments.add(0, haxelib);
+            arguments.add(0, "run");
+            haxelibRunner.execute(arguments);
         }
         catch (NativeProgramException e)
         {
-            throw new MojoFailureException("Tests failed", e);
+            throw new MojoFailureException("Run Haxelib failed", e);
         }
     }
 }
