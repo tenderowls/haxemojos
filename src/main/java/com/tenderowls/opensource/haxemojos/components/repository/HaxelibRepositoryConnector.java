@@ -18,13 +18,21 @@ package com.tenderowls.opensource.haxemojos.components.repository;
 import com.tenderowls.opensource.haxemojos.components.nativeProgram.NativeProgram;
 import com.tenderowls.opensource.haxemojos.components.nativeProgram.NativeProgramException;
 import com.tenderowls.opensource.haxemojos.utils.HaxeFileExtensions;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.WriterFactory;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.spi.connector.*;
 import org.sonatype.aether.transfer.ArtifactTransferException;
+import org.sonatype.aether.util.layout.MavenDefaultLayout;
+import org.sonatype.aether.util.layout.RepositoryLayout;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,6 +44,8 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
     //  Fields
     //
     //-------------------------------------------------------------------------
+
+    private final RepositoryLayout layout;
 
     private final RemoteRepository repository;
 
@@ -53,6 +63,7 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
 
     public HaxelibRepositoryConnector(RemoteRepository repository, RepositoryConnector defaultRepositoryConnector, NativeProgram haxelib, Logger logger)
     {
+        this.layout = new MavenDefaultLayout();
         this.repository = repository;
         this.defaultRepositoryConnector = defaultRepositoryConnector;
         this.haxelib = haxelib;
@@ -115,6 +126,22 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
                             artifactDownload.setException(new ArtifactTransferException(
                                     artifact, repository, "Can't resolve artifact " + artifact.toString()));
                         }
+                        else {
+                            Model model = generateModel(
+                                    artifact.getGroupId(),
+                                    artifact.getArtifactId(),
+                                    artifact.getVersion());
+                            try {
+                                File metadataFile = generatePomFile(model);
+                                String pomPath = artifactDownload.getFile().getAbsolutePath().replace(artifact.getExtension(), "pom");
+                                metadataFile.renameTo(new File(pomPath));
+                                File dummyFile = artifactDownload.getFile();
+                                dummyFile.createNewFile();
+                            } catch (IOException e) {
+                                artifactDownload.setException(new ArtifactTransferException(
+                                        artifact, repository, e));
+                            }
+                        }
                     }
                 }
                 catch (NativeProgramException e)
@@ -136,5 +163,43 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
     @Override
     public void close()
     {
+    }
+
+    /**
+     * Generates a (temporary) POM file from the plugin configuration. It's the responsibility of the caller to delete
+     * the generated file when no longer needed.
+     */
+    private File generatePomFile(Model model) {
+
+        Writer writer = null;
+        try {
+            File pomFile = File.createTempFile("mvninstall", ".pom");
+            writer = WriterFactory.newXmlWriter(pomFile);
+            new MavenXpp3Writer().write(writer, model);
+            return pomFile;
+        } catch (IOException e) {
+            logger.error("Error writing temporary POM file: " + e.getMessage(), e);
+            return null;
+        } finally {
+            IOUtil.close(writer);
+        }
+    }
+
+    /**
+     * Generates a minimal model from the user-supplied artifact information.
+     * @return The generated model, never <code>null</code>.
+     */
+    private Model generateModel(String groupId, String artifactId, String version) {
+
+        Model model = new Model();
+
+        model.setModelVersion("4.0.0");
+        model.setGroupId(groupId);
+        model.setArtifactId(artifactId);
+        model.setVersion(version);
+        model.setPackaging(HaxeFileExtensions.HAXELIB);
+        model.setDescription("POM was created from Haxemojos");
+
+        return model;
     }
 }

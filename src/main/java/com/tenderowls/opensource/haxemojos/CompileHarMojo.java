@@ -17,12 +17,9 @@ package com.tenderowls.opensource.haxemojos;
 
 import com.tenderowls.opensource.haxemojos.components.HaxeCompiler;
 import com.tenderowls.opensource.haxemojos.utils.*;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.*;
-import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.util.StringUtils;
 
@@ -31,7 +28,10 @@ import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.EnumMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Builds a `har` package. This is a zip archive which
