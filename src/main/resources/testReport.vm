@@ -1,5 +1,7 @@
 package;
 
+import haxe.unit.TestResult;
+
 class GeneratedTestRunner extends haxe.unit.TestRunner
 {
     public static function main()

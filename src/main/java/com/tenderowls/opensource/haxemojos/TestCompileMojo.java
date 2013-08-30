@@ -66,7 +66,8 @@ public class TestCompileMojo extends AbstractHaxeMojo {
         if (testRunner == null)
             testRunner = generateTestRunner();
 
-        String output = OutputNamesHelper.getTestOutput(project);
+        String outputFileName = OutputNamesHelper.getTestOutput(project);
+        String output = new File(outputDirectory, outputFileName).getAbsolutePath();
         EnumMap<CompileTarget, String> targets = new EnumMap<CompileTarget, String>(CompileTarget.class);
         targets.put(CompileTarget.neko, output);
 

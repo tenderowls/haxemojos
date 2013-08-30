@@ -17,12 +17,9 @@ package com.tenderowls.opensource.haxemojos;
 
 import com.tenderowls.opensource.haxemojos.components.HaxeCompiler;
 import com.tenderowls.opensource.haxemojos.utils.*;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.*;
-import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.util.StringUtils;
 
@@ -31,7 +28,10 @@ import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.EnumMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Builds a `har` package. This is a zip archive which
@@ -46,6 +46,12 @@ public class CompileHarMojo extends AbstractHaxeMojo {
      */
     @Parameter(required = true)
     private Set<CompileTarget> targets;
+
+    /**
+     * Package without targets validation
+     */
+    @Parameter
+    private boolean skipValidation;
 
     /**
      * More type strict flash API
@@ -72,23 +78,28 @@ public class CompileHarMojo extends AbstractHaxeMojo {
         {
             String outputDirectoryName = OutputNamesHelper.getHarValidationOutput(project.getArtifact());
             File outputBase = new File(outputDirectory, outputDirectoryName);
-            validateTargets(outputBase);
+
+            if (!outputBase.exists())
+                outputBase.mkdirs();
+
+            if (!skipValidation) {
+                validateTargets(outputBase);
+            }
+            else {
+                getLog().warn("Validation skipped");
+            }
+
             File metadata = createHarMetadata(outputBase);
 
             ZipArchiver archiver = new ZipArchiver();
             archiver.addFile(metadata, HarMetadata.METADATA_FILE_NAME);
 
-            for (String compileRoot : project.getCompileSourceRoots())
+            for (String compileRoot : project.getCompileSourceRoots()) {
                 archiver.addDirectory(new File(compileRoot));
-
-            HashSet<String> resourcePaths = new HashSet<String>();
-            for (Resource resource : project.getResources()) {
-                String targetPath = resource.getTargetPath();
-                resourcePaths.add(targetPath == null ? resource.getDirectory() : targetPath);
             }
 
-            for (String sourceRoot: resourcePaths) {
-                archiver.addDirectory(new File(sourceRoot));
+            for (File resourceDir: ProjectHelper.getResourceDirectories(project)) {
+                archiver.addDirectory(resourceDir);
             }
 
             File destFile = new File(outputDirectory, project.getBuild().getFinalName() + "." + HaxeFileExtensions.HAR);
@@ -124,9 +135,6 @@ public class CompileHarMojo extends AbstractHaxeMojo {
     private void validateTargets(File outputBase) throws Exception
     {
         EnumMap<CompileTarget, String> compileTargets = new EnumMap<CompileTarget, String>(CompileTarget.class);
-
-        if (!outputBase.exists())
-            outputBase.mkdirs();
 
         for (CompileTarget target : targets)
         {
