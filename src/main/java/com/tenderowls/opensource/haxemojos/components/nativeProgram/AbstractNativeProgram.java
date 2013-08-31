@@ -173,7 +173,8 @@ public abstract class AbstractNativeProgram implements NativeProgram {
             result.add("HOMEDRIVE=" + homeString.substring(0,2));
             result.add("HOMEPATH=" + homeString.substring(2));
         }
-        else result.add("HOME=" + homeString);
+
+        result.add("HOME=" + homeString);
 
         for (String evnKey : env.keySet())
         {
