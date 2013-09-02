@@ -15,6 +15,7 @@
  */
 package com.tenderowls.opensource.haxemojos.components.nativeProgram;
 
+import com.tenderowls.opensource.haxemojos.utils.NativeProgramVersion;
 import com.yelbota.plugins.nd.UnpackHelper;
 import com.yelbota.plugins.nd.utils.DefaultUnpackMethods;
 import org.apache.maven.artifact.Artifact;
@@ -164,10 +165,15 @@ public abstract class AbstractNativeProgram implements NativeProgram {
 
     protected List<String> getEnvironment()
     {
+        File std = new File(directory, "std");
+        boolean haxeStdPathEnvVarIsOldStyle;
         ArrayList<String> result = new ArrayList<String>();
+
+        // PATH
         result.add("PATH=" + StringUtils.join(path.iterator(), File.pathSeparator));
         String homeString = pluginHome.getAbsolutePath();
 
+        // HOME
         if (isWindows())
         {
             result.add("HOMEDRIVE=" + homeString.substring(0,2));
@@ -176,10 +182,29 @@ public abstract class AbstractNativeProgram implements NativeProgram {
 
         result.add("HOME=" + homeString);
 
+        // haxelib home
+        try {
+            NativeProgramVersion haxeVersion = new NativeProgramVersion(artifact.getVersion());
+            haxeStdPathEnvVarIsOldStyle = haxeVersion.compare("3.0.0-rc2") < 0;
+        } catch (NativeProgramVersion.NativeProgramVersionException e) {
+            haxeStdPathEnvVarIsOldStyle = false;
+        }
+
+        String haxeStdPathEnvVar = haxeStdPathEnvVarIsOldStyle
+                ? "HAXE_LIBRARY_PATH="
+                : "HAXE_STD_PATH=";
+
+        result.add(haxeStdPathEnvVar + std.getAbsolutePath());
+
+        // java
+        result.add("JAVA_HOME=" + System.getenv("JAVA_HOME"));
+
+        // sys
         for (String evnKey : env.keySet())
         {
             result.add(evnKey + "=" + env.get(evnKey));
         }
+
         return result;
     }
 
@@ -227,6 +252,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
             // Sometimes we have archive which contains directory
             // with content, sometimes we have content in the
             // root of the archive.
+            // TODO: Check not working, should be by folder name or same
             File sourceDirectory = tmpDirListing.length == 1
                 ? new File(tmpDir, tmpDirListing[0])
                 : tmpDir;
