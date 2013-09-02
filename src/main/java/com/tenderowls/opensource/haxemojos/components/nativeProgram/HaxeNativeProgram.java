@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component(role = NativeProgram.class, hint = "haxe", isolatedRealm = true)
-public final class HaxeNativeProgram extends AbstractNativeProgram {
+public final class HaxeNativeProgram extends AbstractHaxeNativeProgram {
 
     @Override
     protected List<String> updateArguments(List<String> arguments)
