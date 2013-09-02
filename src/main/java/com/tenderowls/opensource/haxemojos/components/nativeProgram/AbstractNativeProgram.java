@@ -268,5 +268,4 @@ public abstract class AbstractNativeProgram implements NativeProgram {
                 OS.contains("aix"));
     }
 
-
 }

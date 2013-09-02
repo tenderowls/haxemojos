@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component(role = NativeProgram.class, hint = "haxelib")
-public final class HaxelibNativeProgram extends AbstractNativeProgram {
+public final class HaxelibNativeProgram extends AbstractHaxeNativeProgram {
 
     @Override
     protected List<String> updateArguments(List<String> arguments)
