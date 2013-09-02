@@ -19,9 +19,6 @@ import com.tenderowls.opensource.haxemojos.components.nativeProgram.NativeProgra
 import com.tenderowls.opensource.haxemojos.components.nativeProgram.NativeProgramException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
-import org.apache.maven.artifact.repository.MavenArtifactRepository;
-import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.model.Dependency;
@@ -85,7 +82,8 @@ public class NativeBootstrap {
         if (!pluginHome.exists())
             pluginHome.mkdirs();
 
-        initializePrograms(pluginHome, plugin.getDependencies());
+        Map<String, Artifact> artifactMap = getArtifactMap(plugin.getDependencies());
+        initializePrograms(pluginHome, artifactMap);
         initializeHaxelib(pluginHome);
     }
 
@@ -111,39 +109,16 @@ public class NativeBootstrap {
         {
             throw new Exception("Cant setup haxelib", e);
         }
-
-        // Add haxelib virtual repository.
-        project.getRemoteArtifactRepositories().add(new MavenArtifactRepository("lib.haxe.org", "http://lib.haxe.org",
-                new HaxelibRepositoryLayout(),
-                new ArtifactRepositoryPolicy(false, ArtifactRepositoryPolicy.UPDATE_POLICY_ALWAYS, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE),
-                new ArtifactRepositoryPolicy(true, ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE)
-        ));
     }
 
-    private void initializePrograms(File pluginHome, List<Dependency> pluginDependencies) throws Exception
+    private void initializePrograms(File pluginHome, Map<String, Artifact> artifactsMap) throws Exception
     {
-        Map<String, Artifact> artifactsMap = new HashMap<String, Artifact>();
         Set<String> path = new HashSet<String>();
         Map<String, String> env = new HashMap<String, String>();
         File outputDirectory = getOutputDirectory();
 
         // Add java to PATH
         path.add(new File(System.getProperty("java.home"), "bin").getAbsolutePath());
-
-        for (Dependency dependency : pluginDependencies)
-        {
-            String artifactKey = dependency.getGroupId() + ":" + dependency.getArtifactId();
-
-            if (artifactKey.equals(HAXE_COMPILER_KEY) || artifactKey.equals(NEKO_KEY))
-            {
-                String classifier = getDefaultClassifier();
-                Artifact artifact = resolveArtifact(repositorySystem.createArtifactWithClassifier(
-                        dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion(),
-                        getSDKArtifactPackaging(classifier), classifier
-                ), project.getRemoteArtifactRepositories());
-                artifactsMap.put(artifactKey, artifact);
-            }
-        }
 
         if (artifactsMap.get(HAXE_COMPILER_KEY) == null)
         {
@@ -162,6 +137,26 @@ public class NativeBootstrap {
         haxe.initialize(artifactsMap.get(HAXE_COMPILER_KEY), outputDirectory, pluginHome, path, env);
         haxelib.initialize(artifactsMap.get(HAXE_COMPILER_KEY), outputDirectory, pluginHome, path, env);
         neko.initialize(artifactsMap.get(NEKO_KEY), outputDirectory, pluginHome, path, env);
+    }
+
+    private Map<String, Artifact> getArtifactMap(List<Dependency> pluginDependencies) throws Exception {
+        Map<String, Artifact> artifactsMap = new HashMap<String, Artifact>();
+
+        for (Dependency dependency : pluginDependencies)
+        {
+            String artifactKey = dependency.getGroupId() + ":" + dependency.getArtifactId();
+
+            if (artifactKey.equals(HAXE_COMPILER_KEY) || artifactKey.equals(NEKO_KEY))
+            {
+                String classifier = getDefaultClassifier();
+                Artifact artifact = resolveArtifact(repositorySystem.createArtifactWithClassifier(
+                        dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion(),
+                        getSDKArtifactPackaging(classifier), classifier
+                ), project.getRemoteArtifactRepositories());
+                artifactsMap.put(artifactKey, artifact);
+            }
+        }
+        return artifactsMap;
     }
 
     private File getOutputDirectory()
@@ -257,14 +252,4 @@ public class NativeBootstrap {
     private static final String OS_CLASSIFIER_LINUX = "linux";
     private static final String HAXE_COMPILER_KEY = "org.haxe.compiler:haxe-compiler";
     private static final String NEKO_KEY = "org.nekovm:nekovm";
-
-    private class HaxelibRepositoryLayout extends DefaultRepositoryLayout {
-
-        @Override
-        public String getId()
-        {
-            return "haxelib";
-        }
-    }
-    
 }

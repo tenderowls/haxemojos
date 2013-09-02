@@ -15,7 +15,6 @@
  */
 package com.tenderowls.opensource.haxemojos.components.repository;
 
-import com.tenderowls.opensource.haxemojos.components.nativeProgram.NativeProgram;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -33,9 +32,6 @@ public class HaxelibRepositoryConnectorFactory implements RepositoryConnectorFac
     @Requirement(hint = "wagon")
     private RepositoryConnectorFactory defaultRepositoryConnectorFactory;
 
-    @Requirement(hint = "haxelib")
-    private NativeProgram haxelib;
-
     @Requirement
     private Logger logger;
 
@@ -44,7 +40,7 @@ public class HaxelibRepositoryConnectorFactory implements RepositoryConnectorFac
             NoRepositoryConnectorException
     {
         RepositoryConnector defaultRepositoryConnector = defaultRepositoryConnectorFactory.newInstance(session, repository);
-        return new HaxelibRepositoryConnector(repository, defaultRepositoryConnector, haxelib, logger);
+        return new HaxelibRepositoryConnector(repository, defaultRepositoryConnector, logger);
     }
 
     @Override

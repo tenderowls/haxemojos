@@ -39,6 +39,9 @@ public final class HaxeCompiler {
     @Requirement(hint = "haxe")
     private NativeProgram haxe;
 
+    @Requirement(hint = "haxelib")
+    private NativeProgram haxelib;
+
     @Requirement
     private Logger logger;
 
@@ -117,7 +120,7 @@ public final class HaxeCompiler {
         this.outputDirectory = outputDirectory;
     }
 
-    private void addLibs(List<String> argumentsList, MavenProject project, ArtifactFilter artifactFilter)
+    private void addLibs(List<String> argumentsList, MavenProject project, ArtifactFilter artifactFilter) throws Exception
     {
         for (Artifact artifact : project.getArtifacts())
         {
@@ -125,10 +128,26 @@ public final class HaxeCompiler {
 
             if (!filtered && artifact.getType().equals(HaxeFileExtensions.HAXELIB))
             {
+                installHaxelib(artifact);
                 String haxelibId = artifact.getArtifactId() + ":" + artifact.getVersion();
                 argumentsList.add("-lib");
                 argumentsList.add(haxelibId);
             }
+        }
+    }
+
+    private void installHaxelib(Artifact artifact) throws Exception
+    {
+        File haxelibDir = new File(haxelib.getHome(), "_haxelib");
+        File artifactDir = new File(haxelibDir, artifact.getArtifactId());
+        File installedDir = new File(artifactDir, artifact.getVersion().replace(".", ","));
+
+        if (!installedDir.exists())
+        {
+            String packagePath = artifact.getFile().getAbsolutePath();
+
+            if (haxelib.execute("local", packagePath) > 0)
+                throw new Exception("Can't install haxelib locally from " + packagePath);
         }
     }
 

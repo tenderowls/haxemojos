@@ -124,6 +124,11 @@
             <artifactId>maven-core</artifactId>
             <version>3.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.1.2</version>
+        </dependency>
         <!-- Plexus -->
         <dependency>
             <groupId>org.codehaus.plexus</groupId>

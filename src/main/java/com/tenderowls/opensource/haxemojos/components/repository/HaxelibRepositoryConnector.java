@@ -15,9 +15,13 @@
  */
 package com.tenderowls.opensource.haxemojos.components.repository;
 
-import com.tenderowls.opensource.haxemojos.components.nativeProgram.NativeProgram;
-import com.tenderowls.opensource.haxemojos.components.nativeProgram.NativeProgramException;
 import com.tenderowls.opensource.haxemojos.utils.HaxeFileExtensions;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.logging.Logger;
@@ -26,17 +30,20 @@ import org.codehaus.plexus.util.WriterFactory;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.spi.connector.*;
+import org.sonatype.aether.transfer.ArtifactNotFoundException;
 import org.sonatype.aether.transfer.ArtifactTransferException;
-import org.sonatype.aether.util.layout.MavenDefaultLayout;
-import org.sonatype.aether.util.layout.RepositoryLayout;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ *  Connector to familiar haxelib repository (http://lib.haxe.org/files).
+ *  Resolves haxelib via http and put it into local repository, however
+ *  transitive dependencies will be resolved bypassing Maven with haxelib
+ *  utility.
+ */
 public class HaxelibRepositoryConnector implements RepositoryConnector {
 
     //-------------------------------------------------------------------------
@@ -45,13 +52,13 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
     //
     //-------------------------------------------------------------------------
 
-    private final RepositoryLayout layout;
+    private final HttpClient httpClient;
+
+    private final HaxelibRepositoryLayout layout;
 
     private final RemoteRepository repository;
 
     private final RepositoryConnector defaultRepositoryConnector;
-
-    private final NativeProgram haxelib;
 
     private final Logger logger;
 
@@ -61,23 +68,19 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
     //
     //-------------------------------------------------------------------------
 
-    public HaxelibRepositoryConnector(RemoteRepository repository, RepositoryConnector defaultRepositoryConnector, NativeProgram haxelib, Logger logger)
+    public HaxelibRepositoryConnector(RemoteRepository repository, RepositoryConnector defaultRepositoryConnector, Logger logger)
     {
-        this.layout = new MavenDefaultLayout();
+        this.layout = new HaxelibRepositoryLayout();
         this.repository = repository;
         this.defaultRepositoryConnector = defaultRepositoryConnector;
-        this.haxelib = haxelib;
         this.logger = logger;
+        this.httpClient = new DefaultHttpClient();
     }
 
     @Override
     public void get(Collection<? extends ArtifactDownload> artifactDownloads, Collection<? extends MetadataDownload> metadataDownloads)
     {
-        if (artifactDownloads == null)
-        {
-            defaultRepositoryConnector.get(artifactDownloads, metadataDownloads);
-        }
-        else
+        if (artifactDownloads != null)
         {
             ArrayList<ArtifactDownload> normalArtifacts = new ArrayList<ArtifactDownload>();
             ArrayList<ArtifactDownload> haxelibArtifacts = new ArrayList<ArtifactDownload>();
@@ -93,7 +96,6 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
 
             // Get normal artifacts
             defaultRepositoryConnector.get(normalArtifacts, metadataDownloads);
-
             getHaxelibs(haxelibArtifacts);
         }
     }
@@ -103,52 +105,64 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
         for (ArtifactDownload artifactDownload : haxelibArtifacts)
         {
             Artifact artifact = artifactDownload.getArtifact();
-            logger.debug("Resolving " + artifact);
 
-            if (artifact.getExtension().equals(HaxeFileExtensions.HAXELIB))
+            try
             {
-                try
+                String uri = "http://lib.haxe.org/" + layout.getPath(artifact.getArtifactId(), artifact.getVersion());
+                logger.info("Resolving " + artifact + " from " + uri);
+
+                HttpResponse response = httpClient.execute(new HttpGet(uri));
+                HttpEntity entity = response.getEntity();
+
+                switch (response.getStatusLine().getStatusCode())
                 {
-                    File haxelibDir = new File(haxelib.getHome(), "_haxelib");
-                    File artifactDir = new File(haxelibDir, artifact.getArtifactId());
-                    File installedDir = new File(artifactDir, artifact.getVersion().replaceAll("\\.", ","));
+                    case 200:
 
-                    if (!installedDir.exists())
-                    {
-                        int code = haxelib.execute(
-                                "install",
-                                artifact.getArtifactId(),
-                                artifact.getVersion()
-                        );
+                        logger.info("Installing into local repository");
 
-                        if (code > 0)
+                        if (entity != null)
                         {
-                            artifactDownload.setException(new ArtifactTransferException(
-                                    artifact, repository, "Can't resolve artifact " + artifact.toString()));
-                        }
-                        else {
-                            Model model = generateModel(
-                                    artifact.getGroupId(),
-                                    artifact.getArtifactId(),
-                                    artifact.getVersion());
-                            try {
+                            InputStream remoteFile = entity.getContent();
+
+                            try
+                            {
+                                OutputStream localFile = new FileOutputStream(artifactDownload.getFile());
+                                IOUtil.copy(remoteFile, localFile);
+                                localFile.close();
+
+                                Model model = generateModel(
+                                        artifact.getGroupId(),
+                                        artifact.getArtifactId(),
+                                        artifact.getVersion());
+
                                 File metadataFile = generatePomFile(model);
                                 String pomPath = artifactDownload.getFile().getAbsolutePath().replace(artifact.getExtension(), "pom");
                                 metadataFile.renameTo(new File(pomPath));
-                                File dummyFile = artifactDownload.getFile();
-                                dummyFile.createNewFile();
-                            } catch (IOException e) {
-                                artifactDownload.setException(new ArtifactTransferException(
-                                        artifact, repository, e));
+                            }
+                            finally {
+                                remoteFile.close();
                             }
                         }
-                    }
+                        break;
+                    case 404:
+                        if ("pom".equals(artifact.getExtension()))
+                            break;
+
+                        artifactDownload.setException(new ArtifactNotFoundException(artifact, repository));
+                        EntityUtils.consume(entity);
+                        break;
+                    default:
+                        artifactDownload.setException(new ArtifactTransferException(artifact, repository,
+                                String.format("Server returned: %s %s",
+                                        response.getStatusLine().getStatusCode(),
+                                        response.getStatusLine().getReasonPhrase())));
+                        EntityUtils.consume(entity);
+                        break;
                 }
-                catch (NativeProgramException e)
-                {
-                    artifactDownload.setException(new ArtifactTransferException(
-                            artifact, repository, e));
-                }
+            }
+            catch (IOException e)
+            {
+                artifactDownload.setException(new ArtifactTransferException(artifact, repository, e));
             }
         }
     }
@@ -163,6 +177,9 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
     @Override
     public void close()
     {
+        if (httpClient != null) {
+            httpClient.getConnectionManager().shutdown();
+        }
     }
 
     /**
