@@ -30,7 +30,26 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Run 'haxelib' with parameters.
+ * Run 'haxelib run [lib_name]' with parameters.
+ * The goal should be specified in the plugin settings in the section <pre>&#60;executions>&#60;/executions></pre>
+ * Example:
+ * <pre>
+ * &#60;executions&#62;
+ * &#60;execution&#62;
+ *     &#60;id&#62;munit-test&#60;/id&#62;
+ *     &#60;phase>test&#60;/phase&#62;
+ *     &#60;configuration&#62;
+ *         &#60;haxelib&#62;munit&#60;/haxelib&#62;
+ *         &#60;arguments&#62;
+ *             &#60;argument&#62;test&#60;/argument&#62;
+ *         &#60;/arguments&#62;
+ *     &#60;/configuration&#62;
+ *     &#60;goals&#62;
+ *         &#60;goal&#62;haxelibRun&#60;/goal&#62;
+ *     &#60;/goals&#62;
+ * &#60;/execution&#62;
+ * &#60;/executions&#62;
+ * </pre>
  */
 @Mojo(name = "haxelibRun")
 public final class HaxelibRunMojo extends AbstractHaxeMojo {
@@ -38,9 +57,15 @@ public final class HaxelibRunMojo extends AbstractHaxeMojo {
     @Component(hint = "haxelib")
     private NativeProgram haxelibRunner;
 
+    /**
+     * Name of the lib which would be executed
+     */
     @Parameter(required=true)
     private String haxelib;
 
+    /**
+     * List of parameters for execution
+     */
     @Parameter(required=true)
     private List<String> arguments;
 
