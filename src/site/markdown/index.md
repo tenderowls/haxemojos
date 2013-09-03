@@ -40,3 +40,4 @@ The Haxemojos Maven Plugin has six goals:
   * [haxemojos:compileSwc](./compileSwc-mojo.html) Compile SWC library.
   * [haxemojos:testCompile](./testCompile-mojo.html) Compile tests with `neko` compile target.
   * [haxemojos:testRun](./testRun-mojo.html) Run tests with `neko`.
+  * [haxemojos:haxelibRun](./haxelibRun-mojo.html) Run some runnable lib such "haxelib run munit test" or "haxelib run openfl build flash"
