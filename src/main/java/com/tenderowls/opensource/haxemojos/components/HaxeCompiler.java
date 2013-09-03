@@ -128,26 +128,10 @@ public final class HaxeCompiler {
 
             if (!filtered && artifact.getType().equals(HaxeFileExtensions.HAXELIB))
             {
-                installHaxelib(artifact);
                 String haxelibId = artifact.getArtifactId() + ":" + artifact.getVersion();
                 argumentsList.add("-lib");
                 argumentsList.add(haxelibId);
             }
-        }
-    }
-
-    private void installHaxelib(Artifact artifact) throws Exception
-    {
-        File haxelibDir = new File(haxelib.getHome(), "_haxelib");
-        File artifactDir = new File(haxelibDir, artifact.getArtifactId());
-        File installedDir = new File(artifactDir, artifact.getVersion().replace(".", ","));
-
-        if (!installedDir.exists())
-        {
-            String packagePath = artifact.getFile().getAbsolutePath();
-
-            if (haxelib.execute("local", packagePath) > 0)
-                throw new Exception("Can't install haxelib locally from " + packagePath);
         }
     }
 

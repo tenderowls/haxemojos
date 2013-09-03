@@ -16,7 +16,10 @@
 package com.tenderowls.opensource.haxemojos;
 
 import com.tenderowls.opensource.haxemojos.components.NativeBootstrap;
+import com.tenderowls.opensource.haxemojos.components.nativeProgram.NativeProgram;
+import com.tenderowls.opensource.haxemojos.utils.HaxeFileExtensions;
 import com.tenderowls.opensource.haxemojos.utils.HaxeResource;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -60,6 +63,9 @@ public abstract class AbstractHaxeMojo extends AbstractMojo {
     @Component
     private NativeBootstrap bootstrap;
 
+    @Component(hint = "haxelib")
+    private NativeProgram haxelibRunner;
+
     @Parameter(property = "localRepository", required = true, readonly = true)
     private ArtifactRepository localRepository;
 
@@ -75,6 +81,24 @@ public abstract class AbstractHaxeMojo extends AbstractMojo {
         {
             outputDirectory = new File(project.getBuild().getDirectory());
             bootstrap.initialize(project, localRepository);
+
+            for (Artifact artifact : project.getArtifacts())
+            {
+                if (artifact.getType().equals(HaxeFileExtensions.HAXELIB))
+                {
+                    File haxelibDir = new File(haxelibRunner.getHome(), "_haxelib");
+                    File artifactDir = new File(haxelibDir, artifact.getArtifactId());
+                    File installedDir = new File(artifactDir, artifact.getVersion().replace(".", ","));
+
+                    if (!installedDir.exists())
+                    {
+                        String packagePath = artifact.getFile().getAbsolutePath();
+
+                        if (haxelibRunner.execute("local", packagePath) > 0)
+                            throw new Exception("Can't install haxelib locally from " + packagePath);
+                    }
+                }
+            }
         }
         catch (Exception e)
         {
