@@ -162,6 +162,11 @@ public class CompileHarMojo extends AbstractHaxeMojo {
                     outputFile = new File(outputBase, "flash.swc");
                     break;
                 }
+                case js:
+                {
+                    outputFile = new File(outputBase, "js");
+                    break;
+                }
             }
 
             compileTargets.put(target, outputFile.getAbsolutePath());

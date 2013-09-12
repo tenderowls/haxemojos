@@ -23,4 +23,5 @@ public class HaxeFileExtensions {
     public static final String NEKO = "n";
     public static final String SWF = "swf";
     public static final String SWC = "swc";
+    public static final String JS = "js";
 }
