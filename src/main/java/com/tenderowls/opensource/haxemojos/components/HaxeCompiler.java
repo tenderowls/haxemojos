@@ -152,6 +152,10 @@ public final class HaxeCompiler {
                 args.add("-swf");
                 break;
             }
+            case js: {
+                args.add("-js");
+                break;
+            }
         }
     }
 
