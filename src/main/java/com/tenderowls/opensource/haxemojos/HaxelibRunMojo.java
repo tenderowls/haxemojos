@@ -64,24 +64,30 @@ public final class HaxelibRunMojo extends AbstractHaxeMojo {
     private String haxelib;
 
     /**
+     * Directory for running goal
+     */
+    @Parameter(required=false)
+    private String baseDir;
+
+    /**
      * List of parameters for execution
      */
     @Parameter(required=true)
     private List<String> arguments;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException
-    {
+    public void execute() throws MojoExecutionException, MojoFailureException {
         super.execute();
 
-        try
-        {
+        try {
+            if(baseDir != null || baseDir != "") {
+
+            }
+
             arguments.add(0, haxelib);
             arguments.add(0, "run");
             haxelibRunner.execute(arguments);
-        }
-        catch (NativeProgramException e)
-        {
+        } catch (NativeProgramException e) {
             throw new MojoFailureException("Run Haxelib failed", e);
         }
     }
