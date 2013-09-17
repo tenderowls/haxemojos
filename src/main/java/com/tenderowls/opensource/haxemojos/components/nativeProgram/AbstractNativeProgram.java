@@ -67,8 +67,6 @@ public abstract class AbstractNativeProgram implements NativeProgram {
 
     protected File directory;
 
-    private boolean initialized = false;
-
     //-------------------------------------------------------------------------
     //
     //  Public methods
@@ -77,9 +75,6 @@ public abstract class AbstractNativeProgram implements NativeProgram {
 
     public void initialize(Artifact artifact, File outputDirectory, File pluginHome, Set<String> path, Map<String, String> env)
     {
-        if (initialized)
-            return;
-
         this.artifact = artifact;
         this.outputDirectory = outputDirectory;
         this.pluginHome = pluginHome;
@@ -94,8 +89,6 @@ public abstract class AbstractNativeProgram implements NativeProgram {
         {
             logger.error(String.format("Can't unpack %s", artifact.getArtifactId()), e);
         }
-
-        initialized = true;
     }
 
     public int execute(List<String> arguments) throws NativeProgramException
@@ -117,6 +110,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
                 arguments.add(0, "cmd");
             }
 
+            logger.debug("Working directory: " + outputDirectory.getAbsoluteFile());
             logger.debug("Evironment: " + StringUtils.join(environmentList.iterator(), "\n"));
             logger.debug("Executing: " + StringUtils.join(arguments.iterator(), " "));
 
