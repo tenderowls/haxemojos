@@ -93,10 +93,20 @@ public abstract class AbstractNativeProgram implements NativeProgram {
 
     public int execute(List<String> arguments) throws NativeProgramException
     {
-        return execute(arguments, logger);
+        return execute(arguments, outputDirectory, logger);
+    }
+
+    public int execute(List<String> arguments, File targetDirectory) throws NativeProgramException
+    {
+        return execute(arguments, targetDirectory, logger);
     }
 
     public int execute(List<String> arguments, Logger outputLogger) throws NativeProgramException
+    {
+        return execute(arguments, outputDirectory, outputLogger);
+    }
+
+    public int execute(List<String> arguments, File targetDirectory, Logger outputLogger) throws NativeProgramException
     {
         try
         {
@@ -117,7 +127,7 @@ public abstract class AbstractNativeProgram implements NativeProgram {
             Process process = Runtime.getRuntime().exec(
                     arguments.toArray(new String[arguments.size()]),
                     environment,
-                    outputDirectory
+                    targetDirectory
             );
 
             return processExecution(process, outputLogger);
@@ -140,6 +150,16 @@ public abstract class AbstractNativeProgram implements NativeProgram {
         Collections.addAll(list, arguments);
 
         return execute(list);
+    }
+
+    @Override
+    public int execute(File targetDirectory, String ...arguments) throws NativeProgramException
+    {
+        List<String> list = new ArrayList<String>();
+
+        Collections.addAll(list, arguments);
+
+        return execute(list, targetDirectory);
     }
 
     @Override

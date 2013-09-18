@@ -80,13 +80,15 @@ public final class HaxelibRunMojo extends AbstractHaxeMojo {
         super.execute();
 
         try {
-            if(baseDir != null || baseDir != "") {
-
-            }
-
             arguments.add(0, haxelib);
             arguments.add(0, "run");
-            haxelibRunner.execute(arguments);
+            if(baseDir != null || baseDir != "") {
+                File directory = new File(baseDir);
+                haxelibRunner.execute(arguments, directory);
+            } else {
+                haxelibRunner.execute(arguments);
+            }
+
         } catch (NativeProgramException e) {
             throw new MojoFailureException("Run Haxelib failed", e);
         }

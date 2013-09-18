@@ -31,7 +31,21 @@ public interface NativeProgram {
 
     int execute(List<String> arguments, Logger outputLogger) throws NativeProgramException;
 
+    int execute(List<String> arguments, File targetDirectory) throws NativeProgramException;
+
+    int execute(File targetDirectory, String ...arguments) throws NativeProgramException;
+
     int execute(String ...arguments) throws NativeProgramException;
+
+    /**
+     * Main executable
+     * @param arguments commandline args
+     * @param targetDirectory directory in which we will run command
+     * @param outputLogger logger
+     * @return
+     * @throws NativeProgramException
+     */
+    int execute(List<String> arguments, File targetDirectory, Logger outputLogger) throws NativeProgramException;
 
     public File getHome();
 }
