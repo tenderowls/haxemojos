@@ -18,6 +18,7 @@ package com.tenderowls.opensource.haxemojos;
 import com.tenderowls.opensource.haxemojos.components.nativeProgram.NativeProgram;
 import com.tenderowls.opensource.haxemojos.components.nativeProgram.NativeProgramException;
 import com.tenderowls.opensource.haxemojos.utils.OutputNamesHelper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -82,7 +83,7 @@ public final class HaxelibRunMojo extends AbstractHaxeMojo {
         try {
             arguments.add(0, haxelib);
             arguments.add(0, "run");
-            if(baseDir != null || baseDir != "") {
+            if(StringUtils.isNotEmpty(baseDir)) {
                 File directory = new File(baseDir);
                 haxelibRunner.execute(arguments, directory);
             } else {
