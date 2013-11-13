@@ -15,7 +15,6 @@
  */
 package com.tenderowls.opensource.haxemojos.components.nativeProgram;
 
-import com.tenderowls.opensource.haxemojos.utils.NativeProgramVersion;
 import org.codehaus.plexus.component.annotations.Component;
 
 import java.io.File;

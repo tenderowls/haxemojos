@@ -98,6 +98,10 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
             defaultRepositoryConnector.get(normalArtifacts, metadataDownloads);
             getHaxelibs(haxelibArtifacts);
         }
+        else if (metadataDownloads != null)
+        {
+            defaultRepositoryConnector.get(null, metadataDownloads);
+        }
     }
 
     private void getHaxelibs(List<ArtifactDownload> haxelibArtifacts)
@@ -177,9 +181,8 @@ public class HaxelibRepositoryConnector implements RepositoryConnector {
     @Override
     public void close()
     {
-        if (httpClient != null) {
-            httpClient.getConnectionManager().shutdown();
-        }
+        httpClient.getConnectionManager().shutdown();
+        defaultRepositoryConnector.close();
     }
 
     /**
