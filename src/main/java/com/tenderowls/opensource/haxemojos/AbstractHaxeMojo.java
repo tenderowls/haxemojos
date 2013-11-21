@@ -31,6 +31,7 @@ import org.apache.maven.project.MavenProject;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 
 public abstract class AbstractHaxeMojo extends AbstractMojo {
 
@@ -41,10 +42,17 @@ public abstract class AbstractHaxeMojo extends AbstractMojo {
     protected List<String> defines;
 
     /**
+<<<<<<< Updated upstream
      * Define compiler configuration with Macros
      */
     @Parameter
     protected String macro;
+=======
+     * Define a compile time constant
+     */
+    @Parameter
+    protected Properties defineValues;
+>>>>>>> Stashed changes
 
     /**
      * Turn on verbose mode
@@ -128,6 +136,15 @@ public abstract class AbstractHaxeMojo extends AbstractMojo {
         if(macro != null) {
             args.add("--macro");
             args.add(macro);
+        }
+
+        if (defineValues != null)
+        {
+            for (String name : defineValues.stringPropertyNames())
+            {
+                args.add("-D");
+                args.add(name+"="+defineValues.getProperty(name));
+            }
         }
 
         if (resources != null)

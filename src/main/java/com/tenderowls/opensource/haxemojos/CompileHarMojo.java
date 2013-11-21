@@ -48,6 +48,12 @@ public class CompileHarMojo extends AbstractHaxeMojo {
     private Set<CompileTarget> targets;
 
     /**
+     * Exclude classes from compilation
+     */
+    @Parameter(required = false)
+    private Set<String> ignoreClasses;
+
+    /**
      * Package without targets validation
      */
     @Parameter
@@ -190,8 +196,16 @@ public class CompileHarMojo extends AbstractHaxeMojo {
             .join(project.getCompileSourceRoots().iterator(), "','")
             .replace("\\", "\\\\");
 
+        String ignoreClassesJoined = "";
+        if (ignoreClasses != null) {
+            ignoreClassesJoined = StringUtils.join(ignoreClasses.iterator(), "','");
+            if (ignoreClasses.size() > 0) {
+                ignoreClassesJoined = "'" + ignoreClassesJoined + "'";
+            }
+        }
+
         additionalArgs.add("--macro");
-        additionalArgs.add("haxe.macro.Compiler.include('', true, [], [ '" + sourcePaths + "' ])");
+        additionalArgs.add("haxe.macro.Compiler.include('', true, ["+ignoreClassesJoined+"], [ '" + sourcePaths + "' ])");
         additionalArgs.addAll(getCommonAdditionalArgs());
 
         getLog().info(String.format(
