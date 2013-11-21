@@ -41,6 +41,12 @@ public abstract class AbstractHaxeMojo extends AbstractMojo {
     protected List<String> defines;
 
     /**
+     * Define compiler configuration with Macros
+     */
+    @Parameter
+    protected String macro;
+
+    /**
      * Turn on verbose mode
      */
     @Parameter
@@ -117,6 +123,11 @@ public abstract class AbstractHaxeMojo extends AbstractMojo {
                 args.add("-D");
                 args.add(define);
             }
+        }
+        
+        if(macro != null) {
+            args.add("--macro");
+            args.add(macro);
         }
 
         if (resources != null)
