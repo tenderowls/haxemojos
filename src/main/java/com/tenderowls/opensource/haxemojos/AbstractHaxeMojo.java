@@ -156,7 +156,7 @@ public abstract class AbstractHaxeMojo extends AbstractMojo {
         }
 
         if (verbose)
-            args.add("-verbose");
+            args.add("-v");
 
         return args;
     }
