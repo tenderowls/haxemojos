@@ -87,7 +87,7 @@ public abstract class AbstractCompileFlashMojo extends AbstractCompileMojo {
         List<String> additionalArgs = new LinkedList<String>();
 
         if (flashStrict)
-            additionalArgs.add("-flash-strict");
+            additionalArgs.add("--flash-strict");
 
         if (flashUseStage)
             additionalArgs.add("-flash-use-stage");

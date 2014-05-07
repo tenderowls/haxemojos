@@ -184,7 +184,7 @@ public class CompileHarMojo extends AbstractHaxeMojo {
         if (targets.contains(CompileTarget.swf) || targets.contains(CompileTarget.swc))
         {
             if (flashStrict)
-                additionalArgs.add("-flash-strict");
+                additionalArgs.add("--flash-strict");
 
             additionalArgs.add("-swf-version");
             additionalArgs.add(swfVersion);
